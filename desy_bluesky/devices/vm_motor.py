@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 from asyncio import Event
 from typing import Optional
-import time
 
 from bluesky.protocols import Movable, Stoppable
 
@@ -16,8 +15,6 @@ from ophyd_async.core import (
 from ophyd_async.core.signal import observe_value
 from ophyd_async.core.utils import (
     DEFAULT_TIMEOUT,
-    CalculatableTimeout,
-    CalculateTimeout,
     WatcherUpdate,
 )
 from ophyd_async.tango import (
@@ -34,6 +31,7 @@ class VmMotor(TangoReadableDevice, Stoppable, Movable):
     def __init__(self, trl: str, name: str = "", sources: dict = None) -> None:
         if sources is None:
             sources = {}
+        self.trl = trl
         self.src_dict["position"] = sources.get("position", "/Position")
         self.src_dict["cwlimit"] = sources.get("cwlimit", "/CWLimit")
         self.src_dict["ccwlimit"] = sources.get("ccwlimit", "/CCWLimit")
@@ -75,7 +73,7 @@ class VmMotor(TangoReadableDevice, Stoppable, Movable):
     async def set(
         self,
         new_position: float,
-        timeout: DEFAULT_TIMEOUT
+        timeout: float = DEFAULT_TIMEOUT
     ):
         self._set_success = True
         old_position = await self.position.get_value()

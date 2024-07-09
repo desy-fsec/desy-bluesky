@@ -46,6 +46,7 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
                  offset: float = 0) -> None:
         if sources is None:
             sources = {}
+        self.trl = trl
         self.src_dict = sources
         self.src_dict["position"] = sources.get("position", "/Position")
         self.src_dict["state"] = sources.get("state", "/State")
@@ -76,7 +77,7 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
     async def set(
             self,
             new_position: float,
-            timeout: DEFAULT_TIMEOUT,
+            timeout: float = DEFAULT_TIMEOUT,
     ):
         self._set_success = True
         old_position = await self.position.get_value()

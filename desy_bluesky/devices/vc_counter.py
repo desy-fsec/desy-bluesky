@@ -1,34 +1,42 @@
+from __future__ import annotations
+
 from typing import Dict
 
-from ophyd_async.core import AsyncStatus
-from bluesky.protocols import (
-    Reading,
-    Triggerable,
+from bluesky.protocols import Triggerable, Reading
+
+from ophyd_async.core import (
+    AsyncStatus,
+    HintedSignal,
 )
+
 from ophyd_async.tango import (
     TangoReadableDevice,
     tango_signal_rw,
-    tango_signal_x
+    tango_signal_x,
 )
 
 
 class VcCounter(TangoReadableDevice, Triggerable):
     # --------------------------------------------------------------------
-    def __init__(self, trl: str, name="") -> None:
+    def __init__(self, trl: str, name="", sources: dict = None) -> None:
+        if sources is None:
+            sources = {}
+        self.trl = trl
+        self.src_dict["counts"] = sources.get("counts", "/Counts")
+        self.src_dict["reset"] = sources.get("reset", "/Reset")
+
+        for key in self.src_dict:
+            if not self.src_dict[key].startswith("/"):
+                self.src_dict[key] = "/" + self.src_dict[key]
+
+        with self.add_children_as_readables(HintedSignal):
+            self.counts = tango_signal_rw(
+                float, trl + self.src_dict["counts"], device_proxy=self.proxy
+            )
+        self.reset = tango_signal_x(self.trl + self.src_dict["reset"], device_proxy=self.proxy)
+
         TangoReadableDevice.__init__(self, trl, name)
         self._set_success = True
-
-    # --------------------------------------------------------------------
-    def register_signals(self) -> None:
-        self.counts = tango_signal_rw(
-            float, self.trl + "/Counts", device_proxy=self.proxy
-        )
-
-        self.reset = tango_signal_x(self.trl + "/Reset", device_proxy=self.proxy)
-
-        self.set_readable_signals(read_uncached=[self.counts])
-
-        self.set_name(self.name)
 
     # --------------------------------------------------------------------
     async def read(self) -> Dict[str, Reading]:
