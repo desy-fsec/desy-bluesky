@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "desy-bluesky"
+version = "0.1.0"
+description = ""
+authors = ["Devin Burke"]
+license = "GNU GPL 3"
+packages = [
+    { include = "desy-bluesky" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+bluesky = "*"
+databroker = "*"
+matplotlib = "*"
+nxarray = "*"
+ipython = "*"
+pytest = "*"
+PyYAML = "*"
+pyepics = "*"
+pytango = "*"
+aioca = "*"
+ophyd = "*"
+ophyd-async = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
