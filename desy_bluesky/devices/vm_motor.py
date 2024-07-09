@@ -1,111 +1,104 @@
-import asyncio
-import time
-from typing import Callable, List, Optional
+from __future__ import annotations
 
-from ophyd_async.core import AsyncStatus
-from bluesky.protocols import (
-    Locatable,
-    Location,
-    Stoppable,
-    Movable,
+import asyncio
+from asyncio import Event
+from typing import Optional
+import time
+
+from bluesky.protocols import Movable, Stoppable
+
+from ophyd_async.core import (
+    AsyncStatus,
+    ConfigSignal,
+    HintedSignal,
+    WatchableAsyncStatus,
+)
+from ophyd_async.core.signal import observe_value
+from ophyd_async.core.utils import (
+    DEFAULT_TIMEOUT,
+    CalculatableTimeout,
+    CalculateTimeout,
+    WatcherUpdate,
 )
 from ophyd_async.tango import (
     TangoReadableDevice,
     tango_signal_r,
     tango_signal_rw,
-    tango_signal_x
+    tango_signal_x,
 )
 from tango import DevState
 
 
-class VmMotor(TangoReadableDevice, Locatable, Stoppable, Movable):
+class VmMotor(TangoReadableDevice, Stoppable, Movable):
     # --------------------------------------------------------------------
-    def __init__(self, trl: str, name: str = "") -> None:
+    def __init__(self, trl: str, name: str = "", sources: dict = None) -> None:
+        if sources is None:
+            sources = {}
+        self.src_dict["position"] = sources.get("position", "/Position")
+        self.src_dict["cwlimit"] = sources.get("cwlimit", "/CWLimit")
+        self.src_dict["ccwlimit"] = sources.get("ccwlimit", "/CCWLimit")
+        self.src_dict["unitlimitmin"] = sources.get("unitlimitmin", "/UnitLimitMin")
+        self.src_dict["unitlimitmax"] = sources.get("unitlimitmax", "/UnitLimitMax")
+        self.src_dict["stop"] = sources.get("stop", "/StopMove")
+        self.src_dict["state"] = sources.get("state", "/State")
+
+        for key in self.src_dict:
+            if not self.src_dict[key].startswith("/"):
+                self.src_dict[key] = "/" + self.src_dict[key]
+
+        with self.add_children_as_readables(HintedSignal):
+            self.position = tango_signal_rw(
+                float, trl + self.src_dict["position"], device_proxy=self.proxy
+            )
+        with self.add_children_as_readables(ConfigSignal):
+            self.cwlimit = tango_signal_rw(
+                int, trl + self.src_dict["cwlimit"], device_proxy=self.proxy
+            )
+            self.ccwlimit = tango_signal_rw(
+                int, trl + self.src_dict["ccwlimit"], device_proxy=self.proxy
+            )
+            self.unitlimitmin = tango_signal_rw(
+                float, trl + self.src_dict["unitlimitmin"], device_proxy=self.proxy
+            )
+            self.unitlimitmax = tango_signal_rw(
+                float, trl + self.src_dict["unitlimitmax"], device_proxy=self.proxy
+            )
+        self._stop = tango_signal_x(trl + self.src_dict["stop"], self.proxy)
+        self._state = tango_signal_r(DevState, trl + self.src_dict["state"], self.proxy)
+
         TangoReadableDevice.__init__(self, trl, name)
         self._set_success = True
 
     # --------------------------------------------------------------------
-    def register_signals(self) -> None:
-        self.position = tango_signal_rw(
-            float, self.trl + "/Position", device_proxy=self.proxy
-        )
-        self.cwlimit = tango_signal_rw(
-            int, self.trl + "/CWLimit", device_proxy=self.proxy
-        )
-        self.ccwlimit = tango_signal_rw(
-            int, self.trl + "/CCWLimit", device_proxy=self.proxy
-        )
-        self.unitlimitmin = tango_signal_rw(
-            float, self.trl + "/UnitLimitMin", device_proxy=self.proxy
-        )
-        self.unitlimitmax = tango_signal_rw(
-            float, self.trl + "/UnitLimitMax", device_proxy=self.proxy
-        )
 
-        self.set_readable_signals(
-            read_uncached=[self.position],
-            config=[self.cwlimit, self.ccwlimit, self.unitlimitmin, self.unitlimitmax],
-        )
-
-        self._stop = tango_signal_x(self.trl + "/StopMove", self.proxy)
-        self._state = tango_signal_r(DevState, self.trl + "/State", self.proxy)
-
-        self.set_name(self.name)
-
-    # --------------------------------------------------------------------
-    async def _move(self, new_position: float, watchers: List[Callable] or None = None)\
-            -> None:
-        if watchers is None:
-            watchers = []
+    @WatchableAsyncStatus.wrap
+    async def set(
+        self,
+        new_position: float,
+        timeout: DEFAULT_TIMEOUT
+    ):
         self._set_success = True
-        start = time.monotonic()
-        start_position = await self.position.get_value()
+        old_position = await self.position.get_value()
 
-        def update_watchers(current_position: float) -> None:
-            for watcher in watchers:
-                watcher(
-                    name=self.name,
-                    current=current_position,
-                    initial=start_position,
-                    target=new_position,
-                    time_elapsed=time.monotonic() - start,
-                )
+        await self.position.set(new_position, wait=True, timeout=timeout)
 
-        if self.position.is_cachable():
-            self.position.subscribe_value(update_watchers)
-        else:
-            update_watchers(start_position)
+        move_status = AsyncStatus(self._wait())
+
         try:
-            await self.position.set(new_position)
-            await asyncio.sleep(0.1)
-            counter = 0
-            while await self._state.get_value() == DevState.MOVING:
-                # Update the watchers with the current position every 0.5 seconds
-                if counter % 5 == 0:
-                    current_position = await self.position.get_value()
-                    update_watchers(current_position)
-                    counter = 0
-                await asyncio.sleep(0.1)
-                counter += 1
-        finally:
-            if self.position.is_cachable():
-                self.position.clear_sub(update_watchers)
-            else:
-                update_watchers(await self.position.get_value())
+            async for current_position in observe_value(
+                self.position, done_status=move_status
+            ):
+                yield WatcherUpdate(
+                    current=current_position,
+                    initial=old_position,
+                    target=new_position,
+                    name=self.name,
+                )
+        except RuntimeError as exc:
+            print(f"RuntimeError: {exc}")
+            raise
         if not self._set_success:
             raise RuntimeError("Motor was stopped")
-
-    # --------------------------------------------------------------------
-    def set(self, new_position: float, timeout: Optional[float] = None) -> AsyncStatus:
-        watchers: List[Callable] = []
-        coro = asyncio.wait_for(self._move(new_position, watchers), timeout=timeout)
-        return AsyncStatus(coro, watchers)
-
-    # --------------------------------------------------------------------
-    async def locate(self) -> Location:
-        set_point = await self.position.get_setpoint()
-        readback = await self.position.get_value()
-        return Location(setpoint=set_point, readback=readback)
 
     # --------------------------------------------------------------------
     async def stop(self, success: bool = False) -> None:
@@ -113,3 +106,19 @@ class VmMotor(TangoReadableDevice, Locatable, Stoppable, Movable):
         # Put with completion will never complete as we are waiting for completion on
         # the move above, so need to pass wait=False
         await self._stop.trigger()
+
+    # --------------------------------------------------------------------
+    async def _wait(self, event: Optional[Event] = None) -> None:
+        await asyncio.sleep(0.5)
+        state = await self._state.get_value()
+        try:
+            while state == DevState.MOVING:
+                await asyncio.sleep(0.1)
+                state = await self._state.get_value()
+        except Exception as e:
+            raise RuntimeError(f"Error waiting for motor to stop: {e}")
+        finally:
+            if event:
+                event.set()
+            if state != DevState.ON:
+                raise RuntimeError(f"Motor did not stop correctly. State {state}")
