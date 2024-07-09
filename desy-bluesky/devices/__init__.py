@@ -6,6 +6,7 @@ from sis3820 import SIS3820Counter
 from undulator import Undulator
 from vc_counter import VcCounter
 from vm_motor import VmMotor
+from pilc import PiLC
 
 __all__ = [
     "DGG2Timer",
@@ -16,4 +17,5 @@ __all__ = [
     "Undulator",
     "VcCounter",
     "VmMotor",
+    "PiLC",
 ]
