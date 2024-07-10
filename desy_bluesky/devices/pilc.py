@@ -38,7 +38,7 @@ class PiLCIO(PiLCPort):
     --------
 
     direction:
-        A signal storing a boolean for the direction of a module.
+        A signal storing a boolean for the input or output mode of a module.
         False = Input       True = Output
     resistor:
         A signal storing an integer for the resistor to be used.
@@ -49,7 +49,7 @@ class PiLCIO(PiLCPort):
         0 = TTL             1 = NIM
         Note: only available on NIM TTL cards
     status:
-        A signal storing a boolean for the current output of the card.
+        A signal storing a boolean for the current value of the card.
         False = Low         True = High
         Note: only settable when operation = 0
     operation:
@@ -62,22 +62,21 @@ class PiLCIO(PiLCPort):
         the latter when operation = 3
         Note: not functional in manual mode (operation = 0)
     invers:
-        A signal storing a boolean specifying if the output is inverted.
+        A signal storing a boolean specifying if the output should be inverted.
         False = normal      True = inverted
     dop:
-        A signal storing a boolean specifying if the output is a pulse or delay output.
+        A signal storing a boolean specifying if the output should be a pulse on a rising edge input for time,
+        or if the output should delay for time.
         False = Delay       True = Pulse
     time:
         A signal storing a float specifying the delay or pulse width for the dop value.
-        See the PiLC docs for more info.
-        Delay + 80ns
-        Pulse + 80ns
+        See the PiLC docs for more info. minimum: 80ns, unit: us
     counter_enable:
         A signal storing a boolean stating weather the counter is enabled.
     counter_reset:
         A signal for reseting the counter.
     counter_value:
-        A readonly signal for reading the value of the counter.
+        A readonly signal for reading the value of the counter (triggered on rising edge when enabled).
     
     See PiLCPort for more info on the "type" and "name" members
     """
@@ -122,10 +121,29 @@ class PiLCMovable(PiLCReadable, Movable, Stoppable):
 class PiLC(TangoReadableDevice):
     """
     Class Defining a TangoReadableDevice for the PiLC with configurable output cards
+    
+    Members:
+    --------
+    ports:
+        A dict containing the PiLC port classes for operating ports
+        Note: ports are numbered 1 - 16 and NOT 0 - 15. Some ports may
+        not exist, as some cards require more than 1 port
+    aliases:
+        A dict containing the current aliases to ports. see the aliases
+        parameter of __init__'s docstring for more info
+    trl:
+        The tango address of the PiLC (created in __init__)
+    readablemodules, movablemodules, portconfig:
+        See PiLC.__init__'s docstring (created in __init__)
+    
+    Ports also can also be accessed with the same name as in tango but lowercase,
+    after connecting to tango via the connect function
+    example: /IO_DIR_2 -> pilc.io_dir_2
     """
 
     # for consistancy with tango and the PiLC ports starts counting at 1
     ports:dict = {}
+    aliases:dict = {}
 
     # --------------------------------------------------------------------
     def __init__(
@@ -134,11 +152,12 @@ class PiLC(TangoReadableDevice):
             name:str="pilc",
             portconfig:dict=None,
             readableModules:list = None,
-            movableModules:list = None
+            movableModules:list = None,
+            aliases:dict = None
             ) -> None:
         """
-        Arguments:
-        ----------
+        Parameters:
+        -----------
         
         portconfig:
             A dict specifying how the ports are layed out example:
@@ -152,12 +171,17 @@ class PiLC(TangoReadableDevice):
             A list specifying wich modules have only one attribute in the style of: {Modulename}_{Number} (eg. ["ADC", "Temp"])
         movableModules:
             Same as readableModules but the modules can be written to. (eg. ["DAC"])
+        aliases:
+            a dict containing strings as keys and ints as values, to define aliases wich can be accessed either with the [] or . syntax
+            example: aliases = {"adc2":10, "led":11}
+            would mean that: pilc.adc2 or pilc["adc2"] -> pilc.ports[10]   and    pilc.led or pilc["led"] -> pilc.ports[11]
         """
         self.trl=trl
 
         self.portconfig = portconfig or None
         self.readableModules = readableModules or ["ADC", "Temp"]
         self.movableModules = movableModules or ["DAC"]
+        self.aliases = aliases or {}
 
         TangoReadableDevice.__init__(self, trl, name)
     
@@ -166,7 +190,7 @@ class PiLC(TangoReadableDevice):
         """Register a readable and writable signal for a PiLC module
 
         Parameters:
-        ----------
+        -----------
 
         datatype:
             The type the signal will have
@@ -191,7 +215,7 @@ class PiLC(TangoReadableDevice):
         """Register a read only signal for a PiLC module
 
         Parameters:
-        ----------
+        -----------
 
         datatype:
             The type the signal will have
@@ -330,3 +354,15 @@ class PiLC(TangoReadableDevice):
         # register all signals and set names of child devices
         self.set_readable_signals(read=self._readable, config=self._configurable)
         self.set_name(self.name)
+    
+    def __getitem__(self, name:str):
+        """function to make aliases work with the [] syntax"""
+        return self.ports[self.aliases[name]]
+
+    def __getattribute__(self, name: str):
+        """function to make aliases work with the . syntax, while keeping other
+        values intact"""
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            return self.__getitem__(name)
