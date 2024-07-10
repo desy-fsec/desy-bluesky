@@ -3,13 +3,7 @@ from __future__ import annotations
 from typing import Dict
 from typing import Optional
 
-from bluesky.protocols import (
-    Movable,
-    Stoppable,
-    Reading,
-    Preparable,
-    Status
-)
+from bluesky.protocols import Movable, Stoppable, Reading, Preparable, Status
 
 import asyncio
 from asyncio import Event
@@ -42,8 +36,9 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
     _state: tango_signal_r
     _stop: tango_signal_x
 
-    def __init__(self, trl: str, name: str = "", sources: dict = None,
-                 offset: float = 0) -> None:
+    def __init__(
+        self, trl: str, name: str = "", sources: dict = None, offset: float = 0
+    ) -> None:
         if sources is None:
             sources = {}
         self.trl = trl
@@ -61,9 +56,7 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
             self.position = tango_signal_rw(
                 float, trl + self.src_dict["position"], device_proxy=self.proxy
             )
-        self._state = tango_signal_r(
-            DevState, trl + self.src_dict["state"], self.proxy
-        )
+        self._state = tango_signal_r(DevState, trl + self.src_dict["state"], self.proxy)
         self._stop = tango_signal_x(
             trl + self.src_dict["stop"], device_proxy=self.proxy
         )
@@ -75,9 +68,9 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
 
     @WatchableAsyncStatus.wrap
     async def set(
-            self,
-            new_position: float,
-            timeout: float = DEFAULT_TIMEOUT,
+        self,
+        new_position: float,
+        timeout: float = DEFAULT_TIMEOUT,
     ):
         self._set_success = True
         old_position = await self.position.get_value()
@@ -88,7 +81,7 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
 
         try:
             async for current_position in observe_value(
-                    self.position, done_status=move_status
+                self.position, done_status=move_status
             ):
                 yield WatcherUpdate(
                     current=current_position,
