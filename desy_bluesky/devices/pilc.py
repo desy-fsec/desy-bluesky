@@ -1,7 +1,6 @@
+from typing import Optional
 from ophyd_async.core import SignalR, SignalRW, T
 from bluesky.protocols import Readable, Stoppable, Movable
-from typing import Optional
-
 from ophyd_async.tango import TangoReadableDevice, tango_signal_rw, tango_signal_r
 
 
@@ -19,15 +18,22 @@ class PiLCPort(Readable):
             IOt, IOnt, ADC, DAC, Temperature, VIO
     """
 
-    name: SignalRW = None
+    @property
+    def name(self):
+        """get the tango name of the port"""
+        return self.name_signal.name
+
+    name_signal: SignalRW = None
 
     type: str = None
 
     def read(self):
-        return self.name.read()
+        """read the value of the port"""
+        return self.name_signal.read()
 
     def describe(self):
-        return self.name.describe()
+        """describe the value the a port"""
+        return self.name_signal.describe()
 
 
 class PiLCIO(PiLCPort):
@@ -66,7 +72,8 @@ class PiLCIO(PiLCPort):
         A signal storing a boolean specifying if the output should be inverted.
         False = normal      True = inverted
     dop:
-        A signal storing a boolean specifying if the output should be a pulse on a rising edge input for time,
+        A signal storing a boolean specifying if the output should
+        be a pulse on a rising edge input for time,
         or if the output should delay for time.
         False = Delay       True = Pulse
     time:
@@ -77,7 +84,8 @@ class PiLCIO(PiLCPort):
     counter_reset:
         A signal for reseting the counter.
     counter_value:
-        A readonly signal for reading the value of the counter (triggered on rising edge when enabled).
+        A readonly signal for reading the value of the counter
+        (triggered on rising edge when enabled).
     
     See PiLCPort for more info on the "type" and "name" members
     """
@@ -95,18 +103,34 @@ class PiLCIO(PiLCPort):
     counter_reset: SignalRW
     counter_value: SignalR
 
+    @property
+    def name(self):
+        """get the tango name of the port"""
+        return self.status.name
+
     def read(self):
+        """read the "status" value of the IO port"""
         return self.status.read()
 
     def describe(self):
+        """describe the status value of the IO port"""
         return self.status.describe()
 
     def set(self, value):
+        """set the status value of the IO port (only available if operation = 0)"""
         return self.status.set(value)
 
 
 class PiLCReadable(PiLCPort):
+    """
+    A class for a PiLCPort that is read only
+    """
     value: SignalR
+
+    @property
+    def name(self):
+        """get the tango name of the port"""
+        return self.value.name
 
     def read(self):
         return self.value.read()
@@ -124,9 +148,11 @@ class PiLCMovable(PiLCReadable, Movable, Stoppable):
     value: SignalRW
 
     def set(self, value):
+        """set the value of the port"""
         return self.value.set(value)
 
     def stop(self, success=True):
+        """set the value of the port to the stop value (default 0)"""
         return self.value.set(self.stopValue)
 
 
@@ -156,6 +182,12 @@ class PiLC(TangoReadableDevice):
 
     # for consistancy with tango and the PiLC ports starts counting at 1
     ports: dict = {}
+    clk1: SignalRW
+    clk2: SignalRW
+    clk3: SignalRW
+    clk4: SignalRW
+    _movable: list
+    _readable: list
 
     # --------------------------------------------------------------------
     def __init__(
@@ -163,8 +195,9 @@ class PiLC(TangoReadableDevice):
         trl: str,
         name: str = "",
         port_config: Optional[dict] = None,
-        readable_modules: Optional[list] = None,
-        movable_modules: Optional[list] = None,
+        readable_module_types: Optional[list] = None,
+        movable_module_types: Optional[list] = None,
+        aliases: Optional[dict] = None,
     ) -> None:
         """
         Arguments:
@@ -179,19 +212,23 @@ class PiLC(TangoReadableDevice):
                                  14 : 'Temp',               16 : 'VIO',
                 }
         readableModules:
-            A list specifying wich modules have only one attribute in the style of: {Modulename}_{Number} (eg. ["ADC", "Temp"])
+            A list specifying wich modules have only one attribute in the style of:
+                {Modulename}_{Number} (eg. ["ADC", "Temp"])
         movableModules:
             Same as readableModules but the modules can be written to. (eg. ["DAC"])
         aliases:
-            a dict containing strings as keys and ints as values, to define aliases wich can be accessed either with the [] or . syntax
+            a dict containing strings as keys and ints as values,
+            to define aliases wich can be accessed either with the [] or . syntax
             example: aliases = {"adc2":10, "led":11}
-            would mean that: pilc.adc2 or pilc["adc2"] -> pilc.ports[10]   and    pilc.led or pilc["led"] -> pilc.ports[11]
+            would mean that: pilc.adc2 or pilc["adc2"] -> pilc.ports[10]
+            and pilc.led or pilc["led"] -> pilc.ports[11]
         """
         self.trl = trl
 
         self.port_config = port_config or None
-        self.readable_modules = readable_modules or ["ADC", "Temp"]
-        self.movable_modules = movable_modules or ["DAC"]
+        self.readable_module_types = readable_module_types or ["ADC", "Temp"]
+        self.movable_module_types = movable_module_types or ["DAC"]
+        self.aliases = aliases or {}
 
         TangoReadableDevice.__init__(self, trl, name)
 
@@ -201,8 +238,8 @@ class PiLC(TangoReadableDevice):
         datatype: type[T],
         prefix_upper: str,
         num: int,
-        attr_name: str = None,
-        prefix_lower: str = None,
+        attr_name: Optional[str] = None,
+        prefix_lower: Optional[str] = None,
     ) -> tango_signal_rw:
         """Register a readable and writable signal for a PiLC module
 
@@ -237,8 +274,8 @@ class PiLC(TangoReadableDevice):
         datatype: type[T],
         prefix_upper: str,
         num: int,
-        attr_name: str = None,
-        prefix_lower: str = None,
+        attr_name: Optional[str] = None,
+        prefix_lower: Optional[str] = None,
     ) -> tango_signal_rw:
         """Register a read only signal for a PiLC module
 
@@ -277,7 +314,7 @@ class PiLC(TangoReadableDevice):
         self.clk3 = tango_signal_rw(float, "/Clk_3", device_proxy=self.proxy)
         self.clk4 = tango_signal_rw(float, "/Clk_4", device_proxy=self.proxy)
 
-        self._configurable: list = [self.clk1, self.clk2, self.clk3, self.clk4]
+        self._movable: list = [self.clk1, self.clk2, self.clk3, self.clk4]
         self._readable: list = []
 
         # attrlist probably won't change while in the for loop. save it outside for
@@ -287,9 +324,9 @@ class PiLC(TangoReadableDevice):
         def has_port(port_type: list, num: int, port_list: list, check: str = ""):
             """returns the type name of the port found, if none was found, return
              false"""
-            for portName in port_type:
-                if f"{portName}_{check}{num}" in port_list:
-                    return portName
+            for port_name in port_type:
+                if f"{port_name}_{check}{num}" in port_list:
+                    return port_name
             return False
 
         def create_readable(prefix: str, num: int):
@@ -336,14 +373,14 @@ class PiLC(TangoReadableDevice):
             io.dop = self._register_signal_rw(bool, prefix, num, "DOP")
             io.time = self._register_signal_rw(float, prefix, num, "Time")
             io.counter_enable = self._register_signal_rw(bool, prefix, num, "CTR_En")
-            io.counter_reset = self._register_signal_rw(int, prefix, num, "CTR_RST")
+            io.counter_reset = self._register_signal_rw(bool, prefix, num, "CTR_RST")
             io.counter_value = self._register_signal_r(int, prefix, num, "CTR_VAL")
 
             # add io to ports
             self.ports[num] = io
 
             # add the values to the list of to be registered values
-            self._configurable += [
+            self._movable += [
                 io.direction,
                 io.status,
                 io.operation,
@@ -356,17 +393,17 @@ class PiLC(TangoReadableDevice):
 
             # resistor or level may not exist so check before appending
             if hasattr(io, "resistor"):
-                self._configurable.append(io.resistor)
+                self._movable.append(io.resistor)
             if hasattr(io, "level"):
-                self._configurable.append(io.level)
+                self._movable.append(io.level)
 
             self._readable += [io.counter_value]
 
         if self.port_config is not None:
             for key in self.port_config:
-                if self.port_config[key] in self.readable_modules:
+                if self.port_config[key] in self.readable_module_types:
                     create_readable(self.port_config[key], key)
-                elif self.port_config[key] in self.movable_modules:
+                elif self.port_config[key] in self.movable_module_types:
                     create_movable(self.port_config[key], key)
                 elif self.port_config[key] in ["IO", "VIO"]:
                     create_io(self.port_config[key], key)
@@ -375,12 +412,12 @@ class PiLC(TangoReadableDevice):
                     print(f"unknown module: '{self.port_config[key]}'")
                 # add name for module if it exists
                 if key in self.ports and hasattr(self.ports[key], "name"):
-                    self.ports[key].name = self._register_signal_rw(str, "Name", key)
-                    self._configurable.append(self.ports[key].name)
+                    self.ports[key].name_signal = self._register_signal_rw(str, "Name", key)
+                    self._movable.append(self.ports[key].name_signal)
         else:
             for i in range(1, 17):
-                readable_name = has_port(self.readable_modules, i, attrlist)
-                movable_name = has_port(self.movable_modules, i, attrlist)
+                readable_name = has_port(self.readable_module_types, i, attrlist)
+                movable_name = has_port(self.movable_module_types, i, attrlist)
                 io_name = has_port(["IO", "VIO"], i, attrlist, "DIR_")
                 if readable_name:
                     create_readable(readable_name, i)
@@ -392,13 +429,13 @@ class PiLC(TangoReadableDevice):
                 #     print(f"nonexistant port {i}, or in use by another module")
                 # add name for module if it exists
                 if i in self.ports and hasattr(self.ports[i], "name"):
-                    self.ports[i].name = self._register_signal_rw(str, "Name", i)
-                    self._configurable.append(self.ports[i].name)
+                    self.ports[i].name_signal = self._register_signal_rw(str, "Name", i)
+                    self._movable.append(self.ports[i].name_signal)
 
         # register all signals
-        self.set_readable_signals(read=self._readable, config=self._configurable)
+        self.set_readable_signals(read=self._readable, config=self._movable)
         self.set_name(self.name)
-    
+
     def __getitem__(self, name:str):
         """function to make aliases work with the [] syntax"""
         return self.ports[self.aliases[name]]
