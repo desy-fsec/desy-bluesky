@@ -33,7 +33,9 @@ class VcCounter(TangoReadableDevice, Triggerable):
             self.counts = tango_signal_rw(
                 float, trl + self.src_dict["counts"], device_proxy=self.proxy
             )
-        self.reset = tango_signal_x(self.trl + self.src_dict["reset"], device_proxy=self.proxy)
+        self.reset = tango_signal_x(
+            self.trl + self.src_dict["reset"], device_proxy=self.proxy
+        )
 
         TangoReadableDevice.__init__(self, trl, name)
         self._set_success = True
