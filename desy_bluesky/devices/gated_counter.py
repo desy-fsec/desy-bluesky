@@ -1,6 +1,5 @@
 import asyncio
-import time
-from typing import Callable, List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 
 from ophyd_async.core import AsyncStatus, StandardReadable
 from bluesky.protocols import (
@@ -17,11 +16,13 @@ class GatedCounter(StandardReadable, Preparable, Triggerable):
     gate: Triggerable and Preparable
     counter: Readable
 
-    def __init__(self,
-                 gate: Triggerable and Preparable,
-                 counter: Readable,
-                 delay: Optional[float] = None,
-                 name: str = "") -> None:
+    def __init__(
+        self,
+        gate: Triggerable and Preparable,
+        counter: Readable,
+        delay: Optional[float] = None,
+        name: str = "",
+    ) -> None:
         super().__init__(name=name)
         self.gate = gate
         self.counter = counter

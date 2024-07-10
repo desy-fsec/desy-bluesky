@@ -70,11 +70,7 @@ class VmMotor(TangoReadableDevice, Stoppable, Movable):
     # --------------------------------------------------------------------
 
     @WatchableAsyncStatus.wrap
-    async def set(
-        self,
-        new_position: float,
-        timeout: float = DEFAULT_TIMEOUT
-    ):
+    async def set(self, new_position: float, timeout: float = DEFAULT_TIMEOUT):
         self._set_success = True
         old_position = await self.position.get_value()
 

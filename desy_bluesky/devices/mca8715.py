@@ -11,7 +11,7 @@ from ophyd_async.tango import (
     TangoReadableDevice,
     tango_signal_r,
     tango_signal_rw,
-    tango_signal_x
+    tango_signal_x,
 )
 from tango import DevState
 
@@ -20,6 +20,7 @@ class MCA8715(TangoReadableDevice, Triggerable, Configurable):
     """
     A device that controls a MCA8715 Multi-Channel Analyzer.
     """
+
     src_dict: dict = {}
     name: str
     trl: str
@@ -44,10 +45,14 @@ class MCA8715(TangoReadableDevice, Triggerable, Configurable):
                 npt.NDArray[int], trl + self.src_dict["data"], device_proxy=self.proxy
             )
             self.counts = tango_signal_r(
-                npt.NDArray[float], trl + self.src_dict["counts"], device_proxy=self.proxy
+                npt.NDArray[float],
+                trl + self.src_dict["counts"],
+                device_proxy=self.proxy,
             )
             self.countsdiff = tango_signal_r(
-                npt.NDArray[float], trl + self.src_dict["countsdiff"], device_proxy=self.proxy
+                npt.NDArray[float],
+                trl + self.src_dict["countsdiff"],
+                device_proxy=self.proxy,
             )
 
         with self.add_children_as_readables(ConfigSignal):
