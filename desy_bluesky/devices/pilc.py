@@ -276,7 +276,7 @@ class PiLC(TangoReadableDevice):
             io.dop = self._register_signal_rw(bool, prefix, num, "DOP")
             io.time = self._register_signal_rw(float, prefix, num, "Time")
             io.counter_enable = self._register_signal_rw(bool, prefix, num, "CTR_En")
-            io.counter_reset = self._register_signal_rw(int, prefix, num, "CTR_RST")
+            io.counter_reset = self._register_signal_rw(bool, prefix, num, "CTR_RST")
             io.counter_value = self._register_signal_r(int, prefix, num, "CTR_VAL")
 
             # add io to ports
@@ -327,6 +327,6 @@ class PiLC(TangoReadableDevice):
                     self._configurable.append(self.ports[i].name)
                 
                 
-        # register all signals
+        # register all signals and set names of child devices
         self.set_readable_signals(read=self._readable, config=self._configurable)
         self.set_name(self.name)
