@@ -1,39 +1,60 @@
+from abc import abstractmethod
 from typing import Optional
-from ophyd_async.core import SignalR, SignalRW, T
-from bluesky.protocols import Readable, Stoppable, Movable
+from ophyd_async.core import SignalR, SignalRW, Device, DeviceVector, T
 from ophyd_async.tango import TangoReadableDevice, tango_signal_rw, tango_signal_r
+from bluesky.protocols import Readable, Stoppable, Movable
 
 
-class PiLCPort(Readable):
-    """A class defining what all PiLC modules have in common in tango
+class PiLCPort(Readable, Device):
+    """An abstract class defining what all PiLC modules have in common in tango
 
     Members:
     --------
 
-    name:
+    port_name:
         A signal defining the name of a port in Tango
+        this name is also displayed on the PiLC itself
     type:
         A string defining the exact type of a port
         possible values (non exhaustive list):
             IOt, IOnt, ADC, DAC, Temperature, VIO
     """
 
-    @property
-    def name(self):
-        """get the tango name of the port"""
-        return self.name_signal.name
-
-    name_signal: SignalRW = None
+    port_name: SignalRW = None
 
     type: str = None
 
-    def read(self):
-        """read the value of the port"""
-        return self.name_signal.read()
+    @abstractmethod
+    def __init__(self):
+        ...
 
-    def describe(self):
+    @abstractmethod
+    async def read(self):
+        """read the value of the port"""
+
+    @abstractmethod
+    async def describe(self):
         """describe the value the a port"""
-        return self.name_signal.describe()
+
+    @abstractmethod
+    async def get_value(self):
+        """get the current value of the port"""
+
+    async def configure(self, config: dict):
+        """configure the port. Note: Currently not functional with bluesky and ophyd_async
+        config is a dict with values:
+            name: str -> the name of the port
+        """
+        old = await self.read_configuration()
+        if "name" in config:
+            await self.port_name.set(config["name"])
+        new = await self.read_configuration()
+
+        return (old, new)
+
+    async def read_configuration(self):
+        """read the configuration, see PiLCPort.configure for more info"""
+        return await self.port_name.read()
 
 
 class PiLCIO(PiLCPort):
@@ -62,7 +83,7 @@ class PiLCIO(PiLCPort):
     operation:
         A signal storing an integer specifying the current mode of operation.
         0 = Manual      1 = OR      2 = AND     3 = Clock output
-    connect:
+    connections (connect in tango):
         A signal storing an integer that either acts as a bit field
         specifying what outputs are connected (ie 3 -> ports 1 and 2) or
         what clock output is connected. The former when operation = 1 or 2 and
@@ -87,15 +108,15 @@ class PiLCIO(PiLCPort):
         A readonly signal for reading the value of the counter
         (triggered on rising edge when enabled).
     
-    See PiLCPort for more info on the "type" and "name" members
+    See PiLCPort for more info on the "type" and "port_name" members
     """
 
     direction: SignalRW
-    resistor: SignalRW
-    level: SignalRW
+    resistor: Optional[SignalRW] = None
+    level: Optional[SignalRW] = None
     status: SignalRW
     operation: SignalRW
-    connect: SignalRW
+    connections: SignalRW
     invers: SignalRW
     dop: SignalRW
     time: SignalRW
@@ -103,40 +124,101 @@ class PiLCIO(PiLCPort):
     counter_reset: SignalRW
     counter_value: SignalR
 
-    @property
-    def name(self):
-        """get the tango name of the port"""
-        return self.status.name
+    def __init__(self):
+        return
 
-    def read(self):
+    async def read(self):
         """read the "status" value of the IO port"""
-        return self.status.read()
+        return {**await self.status.read(), **await self.counter_value.read()}
 
-    def describe(self):
+    async def describe(self):
         """describe the status value of the IO port"""
         return self.status.describe()
 
-    def set(self, value):
-        """set the status value of the IO port (only available if operation = 0)"""
-        return self.status.set(value)
+    async def get_value(self):
+        """reads the counter value of the port"""
+        return await self.counter_value.get_value()
 
+    async def set(self, value):
+        """set the status value of the IO port (only available if operation = 0)"""
+        return await self.status.set(value)
+
+    async def read_configuration(self):
+        pre = {}
+        if self.type == "IOt":
+            pre |= await self.resistor.read()
+        if self.type == "IOnt":
+            pre |= await self.level.read()
+
+        return {
+            **pre,
+            **await self.direction.read(),
+            **await self.operation.read(),
+            **await self.connections.read(),
+            **await self.invers.read(),
+            **await self.dop.read(),
+            **await self.time.read(),
+            **await self.counter_enable.read(),
+            **await self.port_name.read(),
+        }
+
+    async def configure(self, config: dict):
+        """configure the port. Note: Currently not functional with bluesky and ophyd_async
+        config is a dict with the members:
+            direction
+            resistor
+            level
+            operation
+            connections
+            invers
+            dop
+            time
+            counter_enable
+        the functions of these configurable values is the same as defined in the docstring of PiLCIO
+        """
+        old = await self.read_configuration()
+        if "direction" in config:
+            await self.direction.set(config["direction"])
+        if "resistor" in config and self.resistor:
+            await self.resistor.set(config["resistor"])
+        if "level" in config and self.level:
+            await self.level.set(config["level"])
+        if "operation" in config:
+            await self.operation.set(config["operation"])
+        if "connections" in config:
+            await self.connections.set(config["connections"])
+        if "invers" in config:
+            await self.invers.set(config["invers"])
+        if "dop" in config:
+            await self.dop.set(config["dop"])
+        if "time" in config:
+            await self.time.set(config["time"])
+        if "counter_enable" in config:
+            await self.counter_enable.set(config["counter_enable"])
+        if "name" in config:
+            await self.port_name.set(config["name"])
+        new = await self.read_configuration()
+        return (old, new)
 
 class PiLCReadable(PiLCPort):
     """
     A class for a PiLCPort that is read only
     """
+
+    def __init__(self):
+        return
+
     value: SignalR
 
-    @property
-    def name(self):
-        """get the tango name of the port"""
-        return self.value.name
+    async def read(self):
+        return await self.value.read()
 
-    def read(self):
-        return self.value.read()
+    async def describe(self):
+        return await self.value.describe()
 
-    def describe(self):
-        return self.value.describe()
+    async def get_value(self):
+        """reads thevalue of the port"""
+        return await self.value.get_value()
 
 
 class PiLCMovable(PiLCReadable, Movable, Stoppable):
@@ -181,7 +263,7 @@ class PiLC(TangoReadableDevice):
     """
 
     # for consistancy with tango and the PiLC ports starts counting at 1
-    ports: dict = {}
+    ports: DeviceVector
     clk1: SignalRW
     clk2: SignalRW
     clk3: SignalRW
@@ -221,9 +303,13 @@ class PiLC(TangoReadableDevice):
             to define aliases wich can be accessed either with the [] or . syntax
             example: aliases = {"adc2":10, "led":11}
             would mean that: pilc.adc2 or pilc["adc2"] -> pilc.ports[10]
-            and pilc.led or pilc["led"] -> pilc.ports[11]
+            and pilc.led or pilc["led"] -> pilc.ports[11].
+            Note: the name does not change in bluesky, so reading from pilc.led will not result
+            in a column for pilc-led but instead for pilc-led_11
         """
         self.trl = trl
+
+        self.ports = DeviceVector()
 
         self.port_config = port_config or None
         self.readable_module_types = readable_module_types or ["ADC", "Temp"]
@@ -239,7 +325,6 @@ class PiLC(TangoReadableDevice):
         prefix_upper: str,
         num: int,
         attr_name: Optional[str] = None,
-        prefix_lower: Optional[str] = None,
     ) -> tango_signal_rw:
         """Register a readable and writable signal for a PiLC module
 
@@ -264,8 +349,6 @@ class PiLC(TangoReadableDevice):
         ret = tango_signal_rw(
             datatype, f"/{prefix_upper}_{name}{num}", device_proxy=self.proxy
         )
-        setattr(self, f"{prefix_lower or prefix_upper.lower()}_{name.lower()}{num}",
-                ret)
         return ret
 
     # --------------------------------------------------------------------
@@ -275,7 +358,6 @@ class PiLC(TangoReadableDevice):
         prefix_upper: str,
         num: int,
         attr_name: Optional[str] = None,
-        prefix_lower: Optional[str] = None,
     ) -> tango_signal_rw:
         """Register a read only signal for a PiLC module
 
@@ -300,8 +382,6 @@ class PiLC(TangoReadableDevice):
         ret = tango_signal_r(
             datatype, f"/{prefix_upper}_{name}{num}", device_proxy=self.proxy
         )
-        setattr(self, f"{prefix_lower or prefix_upper.lower()}_{name.lower()}{num}",
-                ret)
         return ret
 
     # --------------------------------------------------------------------
@@ -368,7 +448,7 @@ class PiLC(TangoReadableDevice):
 
             io.status = self._register_signal_rw(int, prefix, num, "Status")
             io.operation = self._register_signal_rw(int, prefix, num, "Operation")
-            io.connect = self._register_signal_rw(int, prefix, num, "Connect")
+            io.connections = self._register_signal_rw(int, prefix, num, "Connect")
             io.invers = self._register_signal_rw(bool, prefix, num, "Invers")
             io.dop = self._register_signal_rw(bool, prefix, num, "DOP")
             io.time = self._register_signal_rw(float, prefix, num, "Time")
@@ -384,7 +464,7 @@ class PiLC(TangoReadableDevice):
                 io.direction,
                 io.status,
                 io.operation,
-                io.connect,
+                io.connections,
                 io.invers,
                 io.dop,
                 io.time,
@@ -392,9 +472,9 @@ class PiLC(TangoReadableDevice):
             ]
 
             # resistor or level may not exist so check before appending
-            if hasattr(io, "resistor"):
+            if io.resistor is not None:
                 self._movable.append(io.resistor)
-            if hasattr(io, "level"):
+            if io.level is not None:
                 self._movable.append(io.level)
 
             self._readable += [io.counter_value]
@@ -412,8 +492,8 @@ class PiLC(TangoReadableDevice):
                     print(f"unknown module: '{self.port_config[key]}'")
                 # add name for module if it exists
                 if key in self.ports and hasattr(self.ports[key], "name"):
-                    self.ports[key].name_signal = self._register_signal_rw(str, "Name", key)
-                    self._movable.append(self.ports[key].name_signal)
+                    self.ports[key].port_name = self._register_signal_rw(str, "Name", key)
+                    self._movable.append(self.ports[key].port_name)
         else:
             for i in range(1, 17):
                 readable_name = has_port(self.readable_module_types, i, attrlist)
@@ -429,8 +509,8 @@ class PiLC(TangoReadableDevice):
                 #     print(f"nonexistant port {i}, or in use by another module")
                 # add name for module if it exists
                 if i in self.ports and hasattr(self.ports[i], "name"):
-                    self.ports[i].name_signal = self._register_signal_rw(str, "Name", i)
-                    self._movable.append(self.ports[i].name_signal)
+                    self.ports[i].port_name = self._register_signal_rw(str, "Name", i)
+                    self._movable.append(self.ports[i].port_name)
 
         # register all signals
         self.set_readable_signals(read=self._readable, config=self._movable)
