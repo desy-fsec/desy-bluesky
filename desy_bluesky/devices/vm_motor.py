@@ -28,11 +28,7 @@ from tango import DevState
 
 class VmMotor(TangoReadableDevice, Stoppable, Movable):
     # --------------------------------------------------------------------
-    def __init__(self, trl: str, name: str = "", sources: dict = None,
-                 md: dict = None) -> None:
-        if md is None:
-            me = {}
-        self.md = md
+    def __init__(self, trl: str, name: str = "", sources: dict = None) -> None:
         if sources is None:
             sources = {}
         self.trl = trl
@@ -120,27 +116,3 @@ class VmMotor(TangoReadableDevice, Stoppable, Movable):
                 event.set()
             if state != DevState.ON:
                 raise RuntimeError(f"Motor did not stop correctly. State {state}")
-
-    async def _update_md(self):
-        async def update_signal_values(d):
-            for k, v in list(d.items()):
-                if isinstance(v, dict):
-                    await update_signal_values(v)
-                elif k == 'signal' and 'value' in d:
-                    signal_name = d['signal']
-                    signal = getattr(self, signal_name)
-                    # If the signal is cached, use the last cached value
-                    if signal._get_cache() and signal._get_cache()._value is not None:
-                        d['value'] = signal._get_cache()._value
-                    else:
-                        d['value'] = await signal.get_value()
-
-        await update_signal_values(self.md)
-
-    # overwrite the read method to update the metadata after normal read
-    async def read(self):
-        ret = await super().read()
-        await self._update_md()
-        return ret
-
-

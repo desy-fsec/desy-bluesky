@@ -41,17 +41,16 @@ class DGG2Timer(TangoReadableDevice, Triggerable, Preparable):
                 self.src_dict[key] = "/" + self.src_dict[key]
 
         # Add sampletime as an unchached hinted signal
-        with self.add_children_as_readables(ConfigSignal):
+        with self.add_children_as_readables(HintedSignal):
             self.sampletime = tango_signal_rw(
                 float, self.trl + self.src_dict["sampletime"], device_proxy=self.proxy
             )
 
-        with self.add_children_as_readables(HintedSignal):
-            self.remainingtime = tango_signal_rw(
-                float,
-                self.trl + self.src_dict["remainingtime"],
-                device_proxy=self.proxy,
-            )
+        self.remainingtime = tango_signal_rw(
+            float,
+            self.trl + self.src_dict["remainingtime"],
+            device_proxy=self.proxy,
+        )
 
         self.startandwaitfortimer = tango_signal_x(
             self.trl + self.src_dict["startandwaitfortimer"], device_proxy=self.proxy
