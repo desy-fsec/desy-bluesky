@@ -46,7 +46,9 @@ class GatedCounter(StandardReadable, Preparable, Triggerable):
         return status
 
     async def read(self) -> Dict[str, Reading]:
-        return await self.counter.read()
+        counter_reading = await self.counter.read()
+        gate_reading = await self.gate.read()
+        return counter_reading | gate_reading
 
     async def describe(self) -> Dict[str, Any]:
         counter_desc = await self.counter.describe()
