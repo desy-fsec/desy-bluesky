@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict
 
-from bluesky.protocols import Triggerable, Reading
+from bluesky.protocols import Triggerable, Reading, Preparable
 
 from ophyd_async.core import (
     AsyncStatus,
@@ -16,7 +16,7 @@ from ophyd_async.tango import (
 )
 
 
-class VcCounter(TangoReadableDevice, Triggerable):
+class VcCounter(TangoReadableDevice, Preparable):
     # --------------------------------------------------------------------
     def __init__(self, trl: str, name="", sources: dict = None) -> None:
         if sources is None:
@@ -46,10 +46,10 @@ class VcCounter(TangoReadableDevice, Triggerable):
         return ret
 
     # --------------------------------------------------------------------
-    def trigger(self) -> AsyncStatus:
-        return AsyncStatus(self._trigger())
+    def prepare(self, value: dict) -> AsyncStatus:
+        return AsyncStatus(self._reset())
 
     # --------------------------------------------------------------------
 
-    async def _trigger(self) -> None:
+    async def _reset(self) -> None:
         await self.reset.trigger()

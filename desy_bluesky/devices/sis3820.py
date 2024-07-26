@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict
 
-from bluesky.protocols import Reading, Triggerable
+from bluesky.protocols import Reading, Triggerable, Preparable
 
 from ophyd_async.core import (
     DEFAULT_TIMEOUT,
@@ -16,8 +16,8 @@ from tango.asyncio import DeviceProxy
 
 
 # --------------------------------------------------------------------
-class SIS3820Counter(StandardReadable, Triggerable):
-    # --------------------------------------------------------------------
+class SIS3820Counter(StandardReadable, Preparable):
+
     def __init__(self, trl: str, name: str = "", sources: dict = None) -> None:
         if sources is None:
             sources = {}
@@ -66,8 +66,19 @@ class SIS3820Counter(StandardReadable, Triggerable):
         ret = await super().read()
         return ret
 
-    def trigger(self) -> AsyncStatus:
-        return AsyncStatus(self._trigger())
+    def prepare(self, value) -> AsyncStatus:
+        return AsyncStatus(self._prepare(value))
 
-    async def _trigger(self) -> None:
-        await self.reset.trigger()
+    async def _prepare(self, value):
+        offset_value = value.get("offset", None)
+        if offset_value is not None:
+            offset_value = float(offset_value)
+            await self.offset.set(offset_value)
+
+        reset = value.get("reset", False)
+        if reset:
+            await self.reset.trigger()
+
+
+
+

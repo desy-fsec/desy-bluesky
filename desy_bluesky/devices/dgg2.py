@@ -68,8 +68,12 @@ class DGG2Timer(TangoReadableDevice, Triggerable, Preparable):
         TangoReadableDevice.__init__(self, trl, name)
         self._set_success = True
 
-    def prepare(self, p_time: float) -> AsyncStatus:
-        return self.sampletime.set(p_time)
+    def prepare(self, p_time: float or dict) -> AsyncStatus:
+        if isinstance(p_time, dict):
+            p_time = p_time.get("sampletime", None)
+        if p_time is not None:
+            p_time = float(p_time)
+            return self.sampletime.set(p_time)
 
     def trigger(self):
         return AsyncStatus(self._trigger())
