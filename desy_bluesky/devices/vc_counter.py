@@ -46,7 +46,7 @@ class VcCounter(TangoReadableDevice, Preparable):
         return ret
 
     # --------------------------------------------------------------------
-    def prepare(self, value: dict) -> AsyncStatus:
+    def prepare(self, **kwargs) -> AsyncStatus:
         return AsyncStatus(self._reset())
 
     # --------------------------------------------------------------------
