@@ -9,8 +9,10 @@ import asyncio
 from asyncio import Event
 
 from ophyd_async.core import (
+    soft_signal_rw,
     AsyncStatus,
     HintedSignal,
+    ConfigSignal,
     WatchableAsyncStatus,
 )
 from ophyd_async.core.signal import observe_value
@@ -46,7 +48,7 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
         self.src_dict["position"] = sources.get("position", "/Position")
         self.src_dict["state"] = sources.get("state", "/State")
         self.src_dict["stop"] = sources.get("stop", "/StopMove")
-        self.offset = offset
+        
 
         for key in self.src_dict:
             if not self.src_dict[key].startswith("/"):
@@ -60,6 +62,9 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
         self._stop = tango_signal_x(
             trl + self.src_dict["stop"], device_proxy=self.proxy
         )
+        
+        with self.add_children_as_readables(ConfigSignal):
+            self.offset = soft_signal_rw(float, initial_value=offset)
 
         TangoReadableDevice.__init__(self, trl, name)
         self._set_success = True
@@ -110,7 +115,7 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
     # --------------------------------------------------------------------
 
     def prepare(self, value: float) -> Status:
-        self.offset = value
+        self.offset.put(value)
         # Return a dummy status
         return Status()
 
