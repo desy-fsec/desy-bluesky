@@ -7,6 +7,7 @@ from bluesky.protocols import Triggerable, Reading, Preparable
 from ophyd_async.core import (
     AsyncStatus,
     HintedSignal,
+    soft_signal_rw,
 )
 
 from ophyd_async.tango import (
@@ -36,6 +37,8 @@ class VcCounter(TangoReadableDevice, Preparable):
         self.reset = tango_signal_x(
             self.trl + self.src_dict["reset"], device_proxy=self.proxy
         )
+        # Not used, I added it here because SIS3820 has it
+        self.offset = soft_signal_rw(float, initial_value=0.0)
 
         TangoReadableDevice.__init__(self, trl, name)
         self._set_success = True

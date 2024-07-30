@@ -10,13 +10,19 @@ from ophyd_async.core import (
     ConfigSignal,
     HintedSignal,
     StandardReadable,
+    SignalR,
+    SignalRW,
+    SignalX,
 )
-from ophyd_async.tango import tango_signal_rw, tango_signal_x
+from ophyd_async.tango import tango_signal_rw, tango_signal_x, tango_signal_r
 from tango.asyncio import DeviceProxy
 
 
 # --------------------------------------------------------------------
-class SIS3820Counter(StandardReadable, Preparable):
+class SIS3820Counter(StandardReadable):
+    counts: SignalR
+    offset: SignalRW
+    reset: SignalX
 
     def __init__(self, trl: str, name: str = "", sources: dict = None) -> None:
         if sources is None:
@@ -34,7 +40,7 @@ class SIS3820Counter(StandardReadable, Preparable):
                 self.src_dict[key] = "/" + self.src_dict[key]
 
         with self.add_children_as_readables(HintedSignal):
-            self.counts = tango_signal_rw(
+            self.counts = tango_signal_r(
                 float, trl + self.src_dict["counts"], device_proxy=self.proxy
             )
         with self.add_children_as_readables(ConfigSignal):
@@ -49,36 +55,5 @@ class SIS3820Counter(StandardReadable, Preparable):
         StandardReadable.__init__(self, name=name)
         self._set_success = True
 
-    async def connect(
-        self,
-        mock: bool = False,
-        timeout: float = DEFAULT_TIMEOUT,
-        force_reconnect: bool = False,
-    ):
-        async def closure():
-            self.proxy = await DeviceProxy(self.trl)
-            return self
-
-        await closure()
-        await super().connect(mock=mock, timeout=timeout)
-
-    async def read(self) -> Dict[str, Reading]:
-        ret = await super().read()
-        return ret
-
-    def prepare(self, value) -> AsyncStatus:
-        return AsyncStatus(self._prepare(value))
-
-    async def _prepare(self, value):
-        offset_value = value.get("offset", None)
-        if offset_value is not None:
-            offset_value = float(offset_value)
-            await self.offset.set(offset_value)
-
-        reset = value.get("reset", False)
-        if reset:
-            await self.reset.trigger()
-
-
-
-
+    async def _reset(self):
+        await self.reset.trigger()

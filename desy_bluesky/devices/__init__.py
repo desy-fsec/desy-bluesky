@@ -7,6 +7,7 @@ from .undulator import Undulator
 from .vc_counter import VcCounter
 from .vm_motor import VmMotor
 from .pilc import PiLC
+from .gated_array import GatedArray
 
 __all__ = [
     "DGG2Timer",
@@ -18,4 +19,5 @@ __all__ = [
     "VcCounter",
     "VmMotor",
     "PiLC",
+    "GatedArray",
 ]
