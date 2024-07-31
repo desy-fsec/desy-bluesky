@@ -10,6 +10,7 @@ from ophyd_async.core import (
     AsyncStatus,
     ConfigSignal,
     HintedSignal,
+    SignalR,
     WatchableAsyncStatus,
 )
 from ophyd_async.core.signal import observe_value
@@ -98,7 +99,7 @@ class OmsVME58Motor(TangoReadableDevice, Movable, Stoppable):
 
         await self.position.set(new_position, wait=True, timeout=timeout)
 
-        move_status = AsyncStatus(self._wait())
+        move_status = AsyncStatus(self._wait(signal=self.position))
 
         try:
             async for current_position in observe_value(
@@ -122,7 +123,9 @@ class OmsVME58Motor(TangoReadableDevice, Movable, Stoppable):
         return self._stop.trigger()
 
     # --------------------------------------------------------------------
-    async def _wait(self, event: Optional[Event] = None) -> None:
+    async def _wait(self, event: Optional[Event] = None,
+                    signal: Optional[SignalR] = None) -> None:
+
         await asyncio.sleep(0.5)
         state = await self._state.get_value()
         try:
@@ -132,7 +135,15 @@ class OmsVME58Motor(TangoReadableDevice, Movable, Stoppable):
         except Exception as e:
             raise RuntimeError(f"Error waiting for motor to stop: {e}")
         finally:
+            if signal is not None:
+                # Send a final reading to the callback to ensure the final value is
+                # recorded. Useful for signals which are polled.
+                reading = await signal.read()
+                signal._get_cache()._callback(reading, reading[signal.name]['value'])
+
             if event:
                 event.set()
             if state != DevState.ON:
                 raise RuntimeError(f"Motor did not stop correctly. State {state}")
+
+
