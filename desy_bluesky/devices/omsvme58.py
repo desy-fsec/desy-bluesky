@@ -71,7 +71,7 @@ class OmsVME58Motor(TangoReadableDevice, Movable, Stoppable):
         TangoReadableDevice.__init__(self, trl, name)
         self._set_success = True
 
-    @WatchableAsyncStatus.wrap
+#    @WatchableAsyncStatus.wrap
     async def set(
         self,
         new_position: float,
@@ -100,20 +100,20 @@ class OmsVME58Motor(TangoReadableDevice, Movable, Stoppable):
         await self.position.set(new_position, wait=True, timeout=timeout)
 
         move_status = AsyncStatus(self._wait(signal=self.position))
-
-        try:
-            async for current_position in observe_value(
-                self.position, done_status=move_status
-            ):
-                yield WatcherUpdate(
-                    current=current_position,
-                    initial=old_position,
-                    target=new_position,
-                    name=self.name,
-                )
-        except RuntimeError as exc:
-            print(f"RuntimeError: {exc}")
-            raise
+        return move_status
+        #try:
+        #    async for current_position in observe_value(
+        #        self.position, done_status=move_status
+        #    ):
+        #        yield WatcherUpdate(
+        #            current=current_position,
+        #            initial=old_position,
+        #            target=new_position,
+        #            name=self.name,
+        #        )
+        #except RuntimeError as exc:
+        #    print(f"RuntimeError: {exc}")
+        #    raise
         if not self._set_success:
             raise RuntimeError("Motor was stopped")
 
@@ -135,12 +135,6 @@ class OmsVME58Motor(TangoReadableDevice, Movable, Stoppable):
         except Exception as e:
             raise RuntimeError(f"Error waiting for motor to stop: {e}")
         finally:
-            if signal is not None:
-                # Send a final reading to the callback to ensure the final value is
-                # recorded. Useful for signals which are polled.
-                reading = await signal.read()
-                signal._get_cache()._callback(reading, reading[signal.name]['value'])
-
             if event:
                 event.set()
             if state != DevState.ON:

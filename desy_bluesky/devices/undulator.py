@@ -71,7 +71,7 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
 
     # --------------------------------------------------------------------
 
-    @WatchableAsyncStatus.wrap
+#    @WatchableAsyncStatus.wrap
     async def set(
         self,
         new_position: float,
@@ -83,22 +83,23 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
         await self.position.set(new_position, wait=True, timeout=timeout)
 
         move_status = AsyncStatus(self._wait())
+        return move_status
 
-        try:
-            async for current_position in observe_value(
-                self.position, done_status=move_status
-            ):
-                yield WatcherUpdate(
-                    current=current_position,
-                    initial=old_position,
-                    target=new_position,
-                    name=self.name,
-                )
-        except RuntimeError as exc:
-            print(f"RuntimeError: {exc}")
-            raise
-        if not self._set_success:
-            raise RuntimeError("Motor was stopped")
+        # try:
+        #     async for current_position in observe_value(
+        #         self.position, done_status=move_status
+        #     ):
+        #         yield WatcherUpdate(
+        #             current=current_position,
+        #             initial=old_position,
+        #             target=new_position,
+        #             name=self.name,
+        #         )
+        # except RuntimeError as exc:
+        #     print(f"RuntimeError: {exc}")
+        #     raise
+        # if not self._set_success:
+        #     raise RuntimeError("Motor was stopped")
 
     # --------------------------------------------------------------------
 
