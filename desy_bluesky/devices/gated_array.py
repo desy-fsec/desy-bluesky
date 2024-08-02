@@ -1,5 +1,6 @@
 import asyncio
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Union
+from dataclasses import dataclass
 
 from ophyd_async.core import (
     AsyncStatus,
@@ -10,17 +11,18 @@ from ophyd_async.core import (
     HintedSignal,
     SignalRW,
     SignalR,
-    SignalX,
 )
-from ophyd_async.core.utils import merge_gathered_dicts
+
 from bluesky.protocols import (
     Readable,
-    Reading,
     Triggerable,
     Preparable,
 )
-from tango import DevState
 
+@dataclass
+class GatedArrayConfig:
+    sampletime: Optional[float] = None
+    reset_on_trigger: Optional[bool] = None
 
 class GatedArray(StandardReadable, Triggerable, Preparable):
     sampletime: SignalRW
@@ -47,25 +49,23 @@ class GatedArray(StandardReadable, Triggerable, Preparable):
 
         super().__init__(name=name)
 
-    def prepare(self, **kwargs) -> AsyncStatus:
-        return AsyncStatus(self._prepare(kwargs))
-
-    async def _prepare(self, kwargs: Dict[str, Any]) -> None:
-        tasks = []
-
-        sampletime = kwargs.get("sampletime", None)
-        if sampletime is not None:
-            tasks.append(self.sampletime.set(float(sampletime)))
-
-        reset_on_trigger = kwargs.get("reset_on_trigger", None)
-        if isinstance(reset_on_trigger, bool):
-            tasks.append(self.reset_on_trigger.set(reset_on_trigger))
-
-        await asyncio.gather(*tasks)
-
+    # --------------------------------------------------------------------
+    def prepare(self, value: GatedArrayConfig) -> AsyncStatus:
+        return AsyncStatus(self._prepare(value))
+    
+    # --------------------------------------------------------------------
+    async def _prepare(self, value: GatedArrayConfig) -> None:
+        config = value.__dataclass_fields__
+        for key, v in config.items():
+            if v is not None:
+                if hasattr(self, key):
+                    await getattr(self, key).set(v)
+    
+    # --------------------------------------------------------------------
     def trigger(self) -> AsyncStatus:
         return AsyncStatus(self._trigger())
-
+    
+    # --------------------------------------------------------------------
     async def _trigger(self) -> None:
         tasks = []
         for counter in self._counters:
@@ -74,4 +74,6 @@ class GatedArray(StandardReadable, Triggerable, Preparable):
 
         trigger_status = self._gate.trigger()
         await trigger_status
-
+    
+    def get_dataclass() -> GatedArrayConfig:
+        return GatedArrayConfig()
