@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import asyncio
 from asyncio import Event
-import time
-from typing import Optional, List, Callable
+from typing import Optional
 from dataclasses import dataclass
 
 from bluesky.protocols import Movable, Stoppable, Preparable
 
-from ophyd_async.core.signal import observe_value
+from ophyd_async.core import observe_value
 
 from ophyd_async.core import (
     WatchableAsyncStatus,
@@ -18,7 +17,7 @@ from ophyd_async.core import (
     SignalRW,
     SignalX
 )
-from ophyd_async.core.utils import (
+from ophyd_async.core import (
     DEFAULT_TIMEOUT,
     CalculatableTimeout,
     CalculateTimeout,

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict
 
-from bluesky.protocols import Triggerable, Reading, Preparable
+from bluesky.protocols import Reading, Preparable
 
 from ophyd_async.core import (
     AsyncStatus,

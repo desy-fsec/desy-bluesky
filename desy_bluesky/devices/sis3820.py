@@ -1,12 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict
-
-from bluesky.protocols import Reading, Triggerable, Preparable
-
 from ophyd_async.core import (
-    DEFAULT_TIMEOUT,
-    AsyncStatus,
     ConfigSignal,
     HintedSignal,
     StandardReadable,
@@ -15,8 +9,6 @@ from ophyd_async.core import (
     SignalX,
 )
 from ophyd_async.tango import tango_signal_rw, tango_signal_x, tango_signal_r
-from tango.asyncio import DeviceProxy
-
 
 # --------------------------------------------------------------------
 class SIS3820Counter(StandardReadable):

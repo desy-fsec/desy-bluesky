@@ -12,8 +12,8 @@ from ophyd_async.core import (
     HintedSignal,
     WatchableAsyncStatus,
 )
-from ophyd_async.core.signal import observe_value
-from ophyd_async.core.utils import (
+from ophyd_async.core import observe_value
+from ophyd_async.core import (
     DEFAULT_TIMEOUT,
     WatcherUpdate,
 )

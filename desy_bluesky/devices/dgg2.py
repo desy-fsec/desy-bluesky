@@ -9,9 +9,8 @@ from bluesky.protocols import Preparable, Triggerable
 from ophyd_async.core import (
     AsyncStatus,
     ConfigSignal,
-    HintedSignal,
 )
-from ophyd_async.core.utils import DEFAULT_TIMEOUT
+from ophyd_async.core import DEFAULT_TIMEOUT
 from ophyd_async.tango import (
     TangoReadableDevice,
     tango_signal_r,

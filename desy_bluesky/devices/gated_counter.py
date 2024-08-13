@@ -1,5 +1,5 @@
 import asyncio
-from typing import Optional, Dict, Any, Union
+from typing import Union
 
 from ophyd_async.core import (
     Device,
@@ -14,12 +14,9 @@ from ophyd_async.core import (
 )
 from bluesky.protocols import (
     Readable,
-    Reading,
     Triggerable,
     Preparable,
-    Status
 )
-from tango import DevState
 
 
 class GatedCounter(StandardReadable, Preparable, Triggerable):

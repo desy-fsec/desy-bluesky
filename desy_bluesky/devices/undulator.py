@@ -13,12 +13,10 @@ from ophyd_async.core import (
     AsyncStatus,
     HintedSignal,
     ConfigSignal,
-    WatchableAsyncStatus,
 )
-from ophyd_async.core.signal import observe_value
-from ophyd_async.core.utils import (
+
+from ophyd_async.core import (
     DEFAULT_TIMEOUT,
-    WatcherUpdate,
 )
 from ophyd_async.tango import (
     TangoReadableDevice,
@@ -84,22 +82,6 @@ class Undulator(TangoReadableDevice, Stoppable, Preparable, Movable):
 
         move_status = AsyncStatus(self._wait())
         return move_status
-
-        # try:
-        #     async for current_position in observe_value(
-        #         self.position, done_status=move_status
-        #     ):
-        #         yield WatcherUpdate(
-        #             current=current_position,
-        #             initial=old_position,
-        #             target=new_position,
-        #             name=self.name,
-        #         )
-        # except RuntimeError as exc:
-        #     print(f"RuntimeError: {exc}")
-        #     raise
-        # if not self._set_success:
-        #     raise RuntimeError("Motor was stopped")
 
     # --------------------------------------------------------------------
 
