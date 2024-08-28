@@ -1,101 +1,51 @@
 from __future__ import annotations
 
-import asyncio
-from asyncio import Event
-from typing import Optional
+from typing import Optional, Union
 
-from bluesky.protocols import Preparable, Triggerable
+from bluesky.protocols import Triggerable
 
 from ophyd_async.core import (
     AsyncStatus,
-    ConfigSignal,
 )
-from ophyd_async.core import DEFAULT_TIMEOUT
-from ophyd_async.tango import (
-    TangoReadableDevice,
-    tango_signal_r,
-    tango_signal_rw,
-    tango_signal_x,
+from ophyd_async.core import (
+    DEFAULT_TIMEOUT,
+    SignalX,
+    SignalR,
+    SignalRW,
+    HintedSignal,
+    ConfigSignal
 )
-from tango import DevState
+from tango import DeviceProxy as SyncDeviceProxy
+from tango.asyncio import DeviceProxy as AsyncDeviceProxy
+
+from .fsec_readable_device import FSECReadableDevice
 
 
-# --------------------------------------------------------------------
-class DGG2Timer(TangoReadableDevice, Triggerable, Preparable):
+class DGG2Timer(FSECReadableDevice, Triggerable):
+    SampleTime: SignalRW
+    RemainingTime: SignalR
+    StartAndWaitForTimer: SignalX
+    Start: SignalX
+
     # --------------------------------------------------------------------
-    def __init__(self, trl: str, name="", sources: dict = None) -> None:
-        if sources is None:
-            sources = {}
-        self.trl = trl
-        self.src_dict["sampletime"] = sources.get("sampletime", "/SampleTime")
-        self.src_dict["remainingtime"] = sources.get("remainingtime", "/RemainingTime")
-        self.src_dict["startandwaitfortimer"] = sources.get(
-            "startandwaitfortimer", "/StartAndWaitForTimer"
-        )
-        self.src_dict["start"] = sources.get("start", "/Start")
-        self.src_dict["state"] = sources.get("state", "/State")
-
-        for key in self.src_dict:
-            if not self.src_dict[key].startswith("/"):
-                self.src_dict[key] = "/" + self.src_dict[key]
-
-        # Add sampletime is both a config signal and a readable
-        with self.add_children_as_readables(ConfigSignal):
-            self.sampletime = tango_signal_rw(
-                float, self.trl + self.src_dict["sampletime"], device_proxy=self.proxy
-            )
-        self.add_readables([self.sampletime])
-
-        self.remainingtime = tango_signal_rw(
-            float,
-            self.trl + self.src_dict["remainingtime"],
-            device_proxy=self.proxy,
-        )
-
-        self.startandwaitfortimer = tango_signal_x(
-            self.trl + self.src_dict["startandwaitfortimer"], device_proxy=self.proxy
-        )
-
-        self.start = tango_signal_x(
-            self.trl + self.src_dict["start"], device_proxy=self.proxy
-        )
-
-        self._state = tango_signal_r(
-            DevState, self.trl + self.src_dict["state"], self.proxy
-        )
-
-        TangoReadableDevice.__init__(self, trl, name)
+    def __init__(
+            self,
+            trl: Optional[str] = None,
+            device_proxy: Optional[Union[AsyncDeviceProxy, SyncDeviceProxy]] = None,
+            name: str = "",
+    ) -> None:
+        super().__init__(trl, device_proxy, name)
         self._set_success = True
+        self.add_readables([self.SampleTime], HintedSignal)
+        self.add_readables([self.SampleTime], ConfigSignal)
 
-    def prepare(self, **kwargs) -> AsyncStatus:
-        return AsyncStatus(self._prepare(kwargs))
-    
-    async def _prepare(self, kwargs) -> None:
-        if "sampletime" in kwargs:
-            p_time = float(kwargs["sampletime"])
-            await self.sampletime.set(p_time)
-            
+    # --------------------------------------------------------------------
 
-    def trigger(self):
+    def trigger(self) -> AsyncStatus:
         return AsyncStatus(self._trigger())
 
-    async def _trigger(self):
-        sample_time = await self.sampletime.get_value()
+    async def _trigger(self) -> None:
+        sample_time = await self.SampleTime.get_value()
         timeout = sample_time + DEFAULT_TIMEOUT
-        await self.start.trigger(wait=True, timeout=timeout)
-        await self._wait()
-
-    async def _wait(self, event: Optional[Event] = None) -> None:
-        # await asyncio.sleep(0.5)
-        state = await self._state.get_value()
-        try:
-            while state == DevState.MOVING:
-                await asyncio.sleep(0.1)
-                state = await self._state.get_value()
-        except Exception as e:
-            raise RuntimeError(f"Error waiting for motor to stop: {e}")
-        finally:
-            if event:
-                event.set()
-            if state != DevState.ON:
-                raise RuntimeError(f"Motor did not stop correctly. State {state}")
+        await self.Start.trigger(wait=False, timeout=timeout)
+        await self.wait_for_idle()
