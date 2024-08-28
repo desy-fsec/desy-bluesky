@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Optional, Union
 
 from ophyd_async.core import (
     ConfigSignal,
@@ -10,42 +11,27 @@ from ophyd_async.core import (
 )
 from ophyd_async.tango import tango_signal_rw, tango_signal_x, tango_signal_r
 
+from tango import DeviceProxy as SyncDeviceProxy
+from tango.asyncio import DeviceProxy as AsyncDeviceProxy
+
+from .fsec_readable_device import FSECReadableDevice
+
+
 # --------------------------------------------------------------------
-class SIS3820Counter(StandardReadable):
-    counts: SignalR
-    offset: SignalRW
-    reset: SignalX
+class SIS3820Counter(FSECReadableDevice):
+    Counts: SignalR
+    Offset: SignalRW
+    Reset: SignalX
 
-    def __init__(self, trl: str, name: str = "", sources: dict = None) -> None:
-        if sources is None:
-            sources = {}
-        self.proxy = None
-        self.trl = trl
-        self.src_dict = {
-            "counts": sources.get("counts", "/Counts"),
-            "offset": sources.get("offset", "/Offset"),
-            "reset": sources.get("reset", "/Reset"),
-        }
-
-        for key in self.src_dict:
-            if not self.src_dict[key].startswith("/"):
-                self.src_dict[key] = "/" + self.src_dict[key]
-
-        with self.add_children_as_readables(HintedSignal):
-            self.counts = tango_signal_r(
-                float, trl + self.src_dict["counts"], device_proxy=self.proxy
-            )
-        with self.add_children_as_readables(ConfigSignal):
-            self.offset = tango_signal_rw(
-                float, trl + self.src_dict["offset"], device_proxy=self.proxy
-            )
-
-        self.reset = tango_signal_x(
-            trl + self.src_dict["reset"], device_proxy=self.proxy
-        )
-
-        StandardReadable.__init__(self, name=name)
-        self._set_success = True
+    def __init__(
+            self,
+            trl: Optional[str] = None,
+            device_proxy: Optional[Union[AsyncDeviceProxy, SyncDeviceProxy]] = None,
+            name: str = "",
+    ) -> None:
+        super().__init__(trl, device_proxy, name)
+        self.add_readables([self.Counts], HintedSignal)
+        self.add_readables([self.Offset], ConfigSignal)
 
     async def _reset(self):
-        await self.reset.trigger()
+        await self.Reset.trigger()

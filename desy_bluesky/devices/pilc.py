@@ -1,7 +1,11 @@
 from abc import abstractmethod
 from typing import Optional
 from ophyd_async.core import SignalR, SignalRW, Device, DeviceVector, T
-from ophyd_async.tango import TangoReadableDevice, tango_signal_rw, tango_signal_r
+from ophyd_async.tango import (
+    tango_signal_rw,
+    tango_signal_r,
+    TangoReadable
+)
 from bluesky.protocols import Readable, Stoppable, Movable
 
 
@@ -239,7 +243,7 @@ class PiLCMovable(PiLCReadable, Movable, Stoppable):
 
 
 # --------------------------------------------------------------------
-class PiLC(TangoReadableDevice):
+class PiLC(TangoReadable):
     """
     Class Defining a TangoReadableDevice for the PiLC with configurable output cards
     
@@ -316,7 +320,7 @@ class PiLC(TangoReadableDevice):
         self.movable_module_types = movable_module_types or ["DAC"]
         self.aliases = aliases or {}
 
-        TangoReadableDevice.__init__(self, trl, name)
+        TangoReadable.__init__(self, trl, name)
 
     # --------------------------------------------------------------------
     def _register_signal_rw(
