@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, Union
 
-from bluesky.protocols import Triggerable
+from bluesky.protocols import Triggerable, Preparable
 
 from ophyd_async.core import (
     AsyncStatus,
@@ -21,7 +21,7 @@ from tango.asyncio import DeviceProxy as AsyncDeviceProxy
 from .fsec_readable_device import FSECReadableDevice
 
 
-class DGG2Timer(FSECReadableDevice, Triggerable):
+class DGG2Timer(FSECReadableDevice, Triggerable, Preparable):
     SampleTime: SignalRW
     RemainingTime: SignalR
     StartAndWaitForTimer: SignalX
@@ -47,3 +47,8 @@ class DGG2Timer(FSECReadableDevice, Triggerable):
         timeout = sample_time + DEFAULT_TIMEOUT
         await self.Start.trigger(wait=False, timeout=timeout)
         await self.wait_for_idle()
+
+    # --------------------------------------------------------------------
+    @AsyncStatus.wrap
+    async def prepare(self, value: float) -> None:
+        await self.SampleTime.set(value)
