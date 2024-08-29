@@ -1,4 +1,3 @@
-import asyncio
 from typing import Union
 
 from ophyd_async.core import (

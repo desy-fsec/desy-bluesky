@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import asyncio
-from asyncio import Event
 from typing import Union, Optional
 
-from bluesky.protocols import Movable, Stoppable, Preparable
+from bluesky.protocols import Movable, Stoppable
 
 from ophyd_async.core import observe_value
 
