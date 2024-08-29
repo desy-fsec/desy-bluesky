@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from asyncio import Event
-from typing import Optional, Union, Optional
-from dataclasses import dataclass
+from typing import Union, Optional
 
 from bluesky.protocols import Movable, Stoppable, Preparable
 
@@ -24,19 +23,14 @@ from ophyd_async.core import (
     CalculateTimeout,
     WatcherUpdate
 )
-from ophyd_async.tango import (
-    tango_signal_r,
-    tango_signal_rw,
-    tango_signal_x,
-    TangoReadable
-)
-from tango import DevState, DeviceProxy as SyncDeviceProxy
+
+from tango import DeviceProxy as SyncDeviceProxy
 from tango.asyncio import DeviceProxy as AsyncDeviceProxy
 
 from .fsec_readable_device import FSECReadableDevice
 
 
-class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Preparable):
+class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     Position: SignalRW
     BaseRate: SignalRW
     SlewRate: SignalRW
@@ -61,11 +55,8 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Preparable):
                             self.Acceleration],
                            ConfigSignal)
 
-    def set(self, value: float, timeout: CalculatableTimeout = CalculateTimeout)\
-            -> WatchableAsyncStatus:
-        return WatchableAsyncStatus(self._set(value, timeout))
-
-    async def _set(
+    @WatchableAsyncStatus.wrap
+    async def set(
         self,
         value: float,
         timeout: CalculatableTimeout = CalculateTimeout,

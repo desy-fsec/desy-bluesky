@@ -1,79 +1,68 @@
 import asyncio
-from typing import Optional, Union
-from dataclasses import dataclass
+from typing import List, Union
 
 from ophyd_async.core import (
-    AsyncStatus,
-    Device,
     StandardReadable,
+    AsyncStatus,
     soft_signal_rw,
     ConfigSignal,
-    HintedSignal,
-    SignalRW,
-    SignalR,
+    DeviceVector
 )
 
 from bluesky.protocols import (
-    Readable,
     Triggerable,
-    Preparable,
 )
 
-@dataclass
-class GatedArrayConfig:
-    sampletime: Optional[float] = None
-    reset_on_trigger: Optional[bool] = None
+from .dgg2 import DGG2Timer
+from .sis3820 import SIS3820Counter
 
-class GatedArray(StandardReadable, Triggerable, Preparable):
-    sampletime: SignalRW
-    reset_on_trigger: SignalRW
-    state: SignalR
-    _gate: Union[Device, Triggerable, Preparable]
-    _counters: list[Device, Readable]
+
+class GatedArray(StandardReadable, Triggerable):
+    gate: DGG2Timer
+    counters: DeviceVector
 
     def __init__(self,
-                 gate: Union[Device, Triggerable, Preparable],
-                 counters: list[Device, Readable],
+                 gate: Union[DGG2Timer, str],
+                 counters: Union[List[SIS3820Counter], List[str], DeviceVector],
                  name: str = "") -> None:
-        self._gate = gate
-        self._counters = counters
 
-        with self.add_children_as_readables(ConfigSignal):
-            self.sampletime = self._gate.sampletime
-            self.reset_on_trigger = soft_signal_rw(bool, initial_value=True)
+        with self.add_children_as_readables():
+            if all(isinstance(counter, SIS3820Counter) for counter in counters):
+                self.counters = DeviceVector(
+                    {i: counter for i, counter in enumerate(counters)}
+                )
+            elif all(isinstance(counter, str) for counter in counters):
+                self.counters = DeviceVector(
+                    {i: SIS3820Counter(trl) for i, trl in enumerate(counters)}
+                )
+            elif isinstance(counters, DeviceVector):
+                self.counters = counters
+            else:
+                raise ValueError("counters must be a list of SIS3820Counter,"
+                                 " a list of TRLs,"
+                                 " or a DeviceVector")
 
-        self.add_readables([self.sampletime], HintedSignal)
-        self.add_readables([counter for counter in self._counters])
-        self.add_readables([self._gate])
-        self.state = self._gate._state
+            if isinstance(gate, str):
+                self.gate = DGG2Timer(gate)
+            elif isinstance(gate, DGG2Timer):
+                self.gate = gate
+
+        self.reset_on_trigger = soft_signal_rw(datatype=bool,
+                                               name="reset_on_trigger",
+                                               initial_value=True)
+        self.add_readables([self.gate.SampleTime, self.reset_on_trigger], ConfigSignal)
 
         super().__init__(name=name)
 
     # --------------------------------------------------------------------
-    def prepare(self, value: GatedArrayConfig) -> AsyncStatus:
-        return AsyncStatus(self._prepare(value))
     
-    # --------------------------------------------------------------------
-    async def _prepare(self, value: GatedArrayConfig) -> None:
-        config = value.__dataclass_fields__
-        for key, v in config.items():
-            if v is not None:
-                if hasattr(self, key):
-                    await getattr(self, key).set(v)
-    
-    # --------------------------------------------------------------------
-    def trigger(self) -> AsyncStatus:
-        return AsyncStatus(self._trigger())
-    
-    # --------------------------------------------------------------------
-    async def _trigger(self) -> None:
+    @AsyncStatus.wrap
+    async def trigger(self) -> None:
         tasks = []
-        for counter in self._counters:
-            tasks.append(counter.reset.trigger())
+        for counter in self.counters.values():
+            if self.reset_on_trigger:
+                tasks.append(counter.Reset.trigger())
         await asyncio.gather(*tasks)
 
-        trigger_status = self._gate.trigger()
+        trigger_status = self.gate.trigger()
         await trigger_status
-    
-    def get_dataclass() -> GatedArrayConfig:
-        return GatedArrayConfig()

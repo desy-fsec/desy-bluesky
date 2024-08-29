@@ -4,12 +4,10 @@ from typing import Optional, Union
 from ophyd_async.core import (
     ConfigSignal,
     HintedSignal,
-    StandardReadable,
     SignalR,
     SignalRW,
     SignalX,
 )
-from ophyd_async.tango import tango_signal_rw, tango_signal_x, tango_signal_r
 
 from tango import DeviceProxy as SyncDeviceProxy
 from tango.asyncio import DeviceProxy as AsyncDeviceProxy
@@ -33,5 +31,5 @@ class SIS3820Counter(FSECReadableDevice):
         self.add_readables([self.Counts], HintedSignal)
         self.add_readables([self.Offset], ConfigSignal)
 
-    async def _reset(self):
+    async def reset(self):
         await self.Reset.trigger()

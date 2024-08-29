@@ -41,10 +41,8 @@ class DGG2Timer(FSECReadableDevice, Triggerable):
 
     # --------------------------------------------------------------------
 
-    def trigger(self) -> AsyncStatus:
-        return AsyncStatus(self._trigger())
-
-    async def _trigger(self) -> None:
+    @AsyncStatus.wrap
+    async def trigger(self) -> None:
         sample_time = await self.SampleTime.get_value()
         timeout = sample_time + DEFAULT_TIMEOUT
         await self.Start.trigger(wait=False, timeout=timeout)

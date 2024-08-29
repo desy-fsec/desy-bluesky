@@ -11,9 +11,7 @@ from ophyd_async.core import (
 from bluesky.protocols import (
     Triggerable,
 )
-from ophyd_async.tango import (
-    TangoReadable
-)
+
 from tango import DeviceProxy as SyncDeviceProxy
 from tango.asyncio import DeviceProxy as AsyncDeviceProxy
 
@@ -41,10 +39,8 @@ class MCA8715(FSECReadableDevice, Triggerable):
         self.add_readables([self.Data, self.Counts, self.CountsDiff], HintedSignal)
         self.add_readables([self.DataLength], ConfigSignal)
 
-    def trigger(self) -> AsyncStatus:
-        return AsyncStatus(self._clear())
-
-    async def _clear(self) -> None:
+    @AsyncStatus.wrap
+    async def trigger(self) -> None:
         try:
             await self.Clear.trigger()
         except Exception as e:
