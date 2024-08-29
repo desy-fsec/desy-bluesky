@@ -37,7 +37,7 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
         super().__init__(trl, device_proxy, name)
         self.add_readables([self.Position], HintedSignal)
         with self.add_children_as_readables(ConfigSignal):
-            self.offset = soft_signal_rw(float, initial_value=offset)
+            self.Offset = soft_signal_rw(float, initial_value=offset)
         self._set_success = True
 
     # --------------------------------------------------------------------

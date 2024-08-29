@@ -8,6 +8,7 @@ from .vc_counter import VcCounter
 from .vm_motor import VmMotor
 from .pilc import PiLC
 from .gated_array import GatedArray
+from .fsec_readable_device import FSECReadableDevice
 
 __all__ = [
     "DGG2Timer",
@@ -20,4 +21,5 @@ __all__ = [
     "VmMotor",
     "PiLC",
     "GatedArray",
+    "FSECReadableDevice",
 ]
