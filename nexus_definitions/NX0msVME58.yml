@@ -1,0 +1,16 @@
+nxclass: NXpositioner
+default: 
+  nxclass: NXattr
+  value: value
+  dtype: char
+  shape: []
+name: 
+  nxclass: NXfield
+  dtype: char
+  shape: []
+  value: 0msVME58
+value: 
+  nxclass: NXfield
+  value: 0.0
+  dtype: float64
+  shape: []
