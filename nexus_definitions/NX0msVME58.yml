@@ -11,6 +11,11 @@ name:
   value: 0msVME58
 value: 
   nxclass: NXfield
-  value: 0.0
+  value: 5.0
   dtype: float64
   shape: []
+  units:
+    nxclass: NXattr
+    value: cm
+    dtype: char
+    shape: []

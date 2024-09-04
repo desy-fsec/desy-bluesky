@@ -24,6 +24,8 @@ NPArray = npt.NDArray
 
 
 class NXattrModel(BaseModel):
+    nxclass: Optional[str] = Field("NXattr",
+                                   description="The class of the NXattr.")
     value: Union[str, Scalar, ArrayLike] = Field(...,
                                                  description="Value of the attribute.")
     dtype: Optional[str] = Field(None,
@@ -32,17 +34,13 @@ class NXattrModel(BaseModel):
                                                      description="Shape of the "
                                                                  "attribute.")
     
-    @model_validator(mode='before')
-    def remove_nxclass(cls, values):
-        values.pop('nxclass', None)
-        return values
-    
     class Config:
         arbitrary_types_allowed = True
         extra = 'forbid'
 
 
 class NXFileModel(BaseModel):
+    nxclass: str = Field("NXFile", description="The class of the NXFile.")
     name: str = Field(..., description="Name of the HDF5 file.")
     mode: str = Field('r', description="Read/write mode of the HDF5 file.")
     recursive: Optional[bool] = Field(None,
@@ -58,7 +56,7 @@ class NXFileModel(BaseModel):
 
 
 class NXobjectModel(BaseModel):
-    nxclass: Optional[str] = Field(None,
+    nxclass: Optional[str] = Field("NXobject",
                                    description="The class of the NXobject.")
     nxname: Optional[str] = Field(None,
                                   description="The name of the NXobject.")
@@ -89,7 +87,9 @@ class NXobjectModel(BaseModel):
         extra = 'forbid'
 
 
-class NXfieldModel(NXobjectModel):
+class NXfieldModel(BaseModel):
+    nxclass: Optional[str] = Field("NXfield",
+                                   description="The class of the NXfield.")
     value: Optional[Union[int, float, ArrayLike, str]] = Field(...,
                                                                description="Value of"
                                                                            " the field"
@@ -104,43 +104,32 @@ class NXfieldModel(NXobjectModel):
                                             description="The parent group"
                                                         " containing this field within"
                                                         " a NeXus tree.")
-    attrs: Optional[Dict[str, 'NXattrModel']] = Field(default_factory=dict,
-                                                      description="A dictionary of the"
-                                                                  " NeXus field's"
-                                                                  " attributes.")
     
-    @model_validator(mode='before')
-    def remove_nxclass(cls, values):
-        values.pop('nxclass', None)
-        return values
+    # @model_validator(mode='before')
+    # def convert_extra_attributes(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    #     for key, value in values.items():
+    #         if key not in cls.model_fields:
+    #             if isinstance(value, dict):
+    #                 print("Converting extra attribute to NXattrModel")
+    #                 print(f"Key: {key}, Value: {value}")
+    #                 values[key] = NXattrModel(**value)
+    #             else:
+    #                 raise TypeError(f"Invalid type for extra attribute '{key}': {type(value)}. "
+    #                                 f"Expected a dictionary to convert to NXattrModel.")
+    #     return values
     
     class Config:
         arbitrary_types_allowed = True
-        extra = 'forbid'
+        extra = 'allow'
 
 
-class NXgroupModel(NXobjectModel):
-    def __init__(self, **data: Any):
-        super().__init__(**data)
-        # Perform validation
-        accepted_types = (NXfieldModel, NXgroupModel, NXattrModel)
-        errors = []
-        for key, value in data.items():
-            if key not in self.model_fields and not isinstance(value, accepted_types):
-                errors.append(ValidationError([{'loc': key,
-                                                'msg': f"Invalid type '{type(value)}'"
-                                                       f" for key '{key}'.",
-                                                'type': 'type_error'}], self.__class__))
-        if errors:
-            raise ValidationError(errors, self.__class__)
-
-    @property
-    def nxclass(self) -> str:
-        return "NXgroup"
-
+class NXgroupModel(BaseModel):
+    nxclass: Optional[str] = Field("NXgroup",
+                                   description="The class of the NXgroup.")
+    
     class Config:
         arbitrary_types_allowed = True
-        extra = 'allow'  # Allow extra fields
+        extra = 'allow'
 
 
 class NXlinkModel(NXobjectModel):
@@ -158,15 +147,27 @@ class NXlinkModel(NXobjectModel):
     
     class Config:
         extra = 'forbid'
+    
+    @property
+    def nxclass(self) -> str:
+        return "NXlink"
 
 
 class NXlinkFieldModel(NXlinkModel):
+    @property
+    def nxclass(self) -> str:
+        return "NXlink"
+    
     @property
     def nxdata(self) -> Optional[Union[int, float, str, list, tuple]]:
         return self.target.value if isinstance(self.target, NXfieldModel) else None
 
 
 class NXlinkGroupModel(NXlinkModel):
+    @property
+    def nxclass(self) -> str:
+        return "NXlink"
+    
     @property
     def entries(self) -> Optional[Dict[str, Union[NXfieldModel, NXgroupModel]]]:
         return self.target.entries if isinstance(self.target, NXgroupModel) else None
@@ -189,14 +190,15 @@ class NXdataModel(NXgroupModel):
                                             description="Field containing signal value"
                                                         " weights")
     
+    @property
+    def nxclass(self) -> str:
+        return "NXdata"
+    
     class Config:
         extra = 'forbid'
 
 
 class NXentryModel(NXgroupModel):
-    @property
-    def nxclass(self) -> str:
-        return "NXentry"
 
     def __add__(self, other: 'NXentryModel') -> 'NXentryModel':
         # Implement the addition logic here
@@ -214,6 +216,10 @@ class NXentryModel(NXgroupModel):
     def plottable_data(self):
         # Implement the plottable_data logic here
         pass
+    
+    @property
+    def nxclass(self) -> str:
+        return "NXentry"
 
     class Config:
         arbitrary_types_allowed = True

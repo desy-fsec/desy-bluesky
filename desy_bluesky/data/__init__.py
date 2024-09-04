@@ -7,7 +7,7 @@ from .nexusformat_models import (
     NXdataModel,
     NXentryModel,    
 )
-from .NXpositioner import NXpositionerModel
+from .NXpositionerModel import NXpositionerModel
 from .writers import NexusWriter
 
 __all__ = ["NXattrModel",

@@ -9,7 +9,10 @@ from .nexusformat_models import (
 
 
 class NXpositionerModel(NXgroupModel):
-    default: Optional[NXattrModel] = Field(None, description="Default attribute")
+    default: Optional[NXattrModel] = Field(
+        default={"value": "value", "nxclass": "NXattr"},  # Default value as a dictionary
+        description="Default attribute"
+    )
     name: Optional[NXfieldModel] = Field(None, description="Name of the positioner")
     value: Optional[NXfieldModel] = Field(None,
                                           description="Current value of the positioner")
@@ -43,14 +46,6 @@ class NXpositionerModel(NXgroupModel):
     
     class Config:
         extra = 'forbid'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.nxclass = "NXpositioner"
-        if 'attrs' not in kwargs:
-            self.attrs = {}
-        if 'default' not in self.attrs:
-            self.attrs['default'] = NXattrModel(value='value', dtype='char', shape=[])
 
     def __repr__(self):
         return f"NXPositionerModel(name={self.nxname}, class={self.nxclass})"
