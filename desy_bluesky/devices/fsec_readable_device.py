@@ -20,7 +20,7 @@ from tango import DevState
 FSECDeviceConfig = TypeVar("FSECDeviceConfig")
 
 
-@tango_polling(0.1, 0.1, 0.1)
+@tango_polling((0.1, 0.1, 0.1))
 class FSECReadableDevice(TangoReadable):
     State: SignalR
 

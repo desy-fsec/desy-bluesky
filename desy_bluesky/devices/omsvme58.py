@@ -31,7 +31,6 @@ from .fsec_readable_device import FSECReadableDevice
 
 class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     Position: SignalRW
-    BaseRate: SignalRW
     SlewRate: SignalRW
     Conversion: SignalRW
     Acceleration: SignalRW
@@ -48,8 +47,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
         super().__init__(trl, device_proxy, name)
         self._set_success = True
         self.add_readables([self.Position], HintedSignal)
-        self.add_readables([self.BaseRate,
-                            self.SlewRate,
+        self.add_readables([self.SlewRate,
                             self.Conversion,
                             self.Acceleration],
                            ConfigSignal)
