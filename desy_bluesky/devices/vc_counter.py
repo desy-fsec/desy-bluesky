@@ -15,7 +15,7 @@ from tango.asyncio import DeviceProxy as AsyncDeviceProxy
 
 
 class VcCounter(FSECReadableDevice):
-    Counts: SignalR
+    Counts: SignalR[int]
     Reset: SignalX
 
     def __init__(

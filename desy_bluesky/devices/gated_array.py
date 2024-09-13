@@ -18,8 +18,8 @@ from .sis3820 import SIS3820Counter
 
 
 class GatedArray(StandardReadable, Triggerable):
-    gate: DGG2Timer
-    counters: DeviceVector
+    # gate: DGG2Timer
+    # counters: DeviceVector
 
     def __init__(self,
                  gate: Union[DGG2Timer, str],

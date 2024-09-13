@@ -22,8 +22,8 @@ from .fsec_readable_device import FSECReadableDevice
 
 
 class DGG2Timer(FSECReadableDevice, Triggerable, Preparable):
-    SampleTime: SignalRW
-    RemainingTime: SignalR
+    SampleTime: SignalRW[float]
+    RemainingTime: SignalR[float]
     StartAndWaitForTimer: SignalX
     Start: SignalX
 

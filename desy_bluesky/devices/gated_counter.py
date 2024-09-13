@@ -16,8 +16,8 @@ from .sis3820 import SIS3820Counter
 
 
 class GatedCounter(StandardReadable, Triggerable):
-    gate: DGG2Timer
-    counter: SIS3820Counter
+    # gate: DGG2Timer
+    # counter: SIS3820Counter
 
     def __init__(self,
                  gate: Union[DGG2Timer, str],

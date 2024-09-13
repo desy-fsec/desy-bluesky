@@ -17,8 +17,8 @@ from .fsec_readable_device import FSECReadableDevice
 
 # --------------------------------------------------------------------
 class SIS3820Counter(FSECReadableDevice):
-    Counts: SignalR
-    Offset: SignalRW
+    Counts: SignalR[float]
+    Offset: SignalRW[float]
     Reset: SignalX
 
     def __init__(

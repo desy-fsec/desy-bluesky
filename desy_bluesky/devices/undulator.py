@@ -12,7 +12,6 @@ from ophyd_async.core import (
     ConfigSignal,
     SignalRW,
     WatchableAsyncStatus,
-    SignalR,
     SignalX
 )
 
@@ -23,8 +22,7 @@ from .fsec_readable_device import FSECReadableDevice
 
 
 class Undulator(FSECReadableDevice, Movable, Stoppable):
-    Position: SignalRW
-    State: SignalR
+    Position: SignalRW[float]
     StopMove: SignalX
 
     def __init__(

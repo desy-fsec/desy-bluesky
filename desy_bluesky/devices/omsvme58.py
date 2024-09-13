@@ -14,7 +14,6 @@ from ophyd_async.core import (
     HintedSignal,
     SignalRW,
     SignalX,
-    SignalR,
 )
 from ophyd_async.core import (
     DEFAULT_TIMEOUT,
@@ -30,12 +29,11 @@ from .fsec_readable_device import FSECReadableDevice
 
 
 class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
-    Position: SignalRW
-    SlewRate: SignalRW
-    Conversion: SignalRW
-    Acceleration: SignalRW
+    Position: SignalRW[float]
+    SlewRate: SignalRW[int]
+    Conversion: SignalRW[float]
+    Acceleration: SignalRW[int]
     StopMove: SignalX
-    State: SignalR
     
     # --------------------------------------------------------------------
     def __init__(

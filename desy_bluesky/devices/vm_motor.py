@@ -24,13 +24,12 @@ from .fsec_readable_device import FSECReadableDevice
 
 
 class VmMotor(FSECReadableDevice, Stoppable):
-    Position: SignalRW
-    CwLimit: SignalR
-    CcwLimit: SignalR
-    UnitLimitMin: SignalR
-    UnitLimitMax: SignalR
+    Position: SignalRW[float]
+    CwLimit: SignalR[float]
+    CcwLimit: SignalR[float]
+    UnitLimitMin: SignalR[float]
+    UnitLimitMax: SignalR[float]
     StopMove: SignalX
-    State: SignalR
 
     # --------------------------------------------------------------------
     def __init__(

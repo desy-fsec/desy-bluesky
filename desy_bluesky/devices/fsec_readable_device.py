@@ -1,4 +1,5 @@
 from __future__ import annotations
+from enum import Enum
 
 import asyncio
 from typing import TypeVar
@@ -22,7 +23,7 @@ FSECDeviceConfig = TypeVar("FSECDeviceConfig")
 
 @tango_polling((0.1, 0.1, 0.1))
 class FSECReadableDevice(TangoReadable):
-    State: SignalR
+    State: SignalR[Enum]
 
     @AsyncStatus.wrap
     async def wait_for_idle(self):

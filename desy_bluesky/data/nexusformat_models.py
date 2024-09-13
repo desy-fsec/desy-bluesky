@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, model_validator, ValidationError
+from pydantic import BaseModel, Field
 from typing import Optional, Union, Dict, Any, Tuple
 import numpy.typing as npt
 import numpy as np

@@ -1,4 +1,5 @@
 from typing import Optional, Union
+import numpy.typing as npt
 
 from ophyd_async.core import (
     AsyncStatus,
@@ -22,11 +23,10 @@ class MCA8715(FSECReadableDevice, Triggerable):
     """
     A device that controls a MCA8715 Multi-Channel Analyzer.
     """
-    DataLength: SignalRW
-    Data: SignalRW
-    State: SignalR
-    Counts: SignalR
-    CountsDiff: SignalR
+    DataLength: SignalRW[int]
+    Data: SignalRW[npt.NDArray[int]]
+    Counts: SignalR[npt.NDArray[float]]
+    CountsDiff: SignalR[npt.NDArray[float]]
     Clear: SignalX
 
     def __init__(
