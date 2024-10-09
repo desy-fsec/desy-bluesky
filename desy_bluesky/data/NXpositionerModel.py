@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 from pydantic import Field
 
 from .nexusformat_models import (
@@ -9,11 +9,15 @@ from .nexusformat_models import (
 
 
 class NXpositionerModel(NXgroupModel):
+    inherits_from: Optional[str] = Field("NXgroup", description="Base class of the object.")
     default: Optional[NXattrModel] = Field(
         default={"value": "value", "nxclass": "NXattr"},  # Default value as a dictionary
         description="Default attribute"
     )
-    name: Optional[NXfieldModel] = Field(None, description="Name of the positioner")
+    description: Optional[NXfieldModel] = Field(None,
+                                                description="Description of the positioner")
+    name: Optional[NXfieldModel] = Field(None,
+                                         description="Name of the positioner")
     value: Optional[NXfieldModel] = Field(None,
                                           description="Current value of the positioner")
     raw_value: Optional[NXfieldModel] = Field(None,

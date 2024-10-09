@@ -1,0 +1,179 @@
+id: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions/base_types.yaml
+name: base_types
+prefixes:
+  desy_bluesky_nx: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions
+  base_types: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions/base_types.yaml
+default_prefix: base_types
+
+types:
+  ISO8601:
+    uri: ISO8601
+    description: ISO8601 date/time stamp
+    base: str
+    pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+  NX_BINARY:
+    uri: NX_BINARY
+    description: Any representation of binary data
+    base: int
+  NX_BOOLEAN:
+    uri: NX_BOOLEAN
+    description: True/false value
+    base: bool
+  NX_CCOMPLEX:
+    uri: NX_CCOMPLEX
+    description: Cartesian representation of complex numbers
+    base: str
+  NX_CHAR:
+    uri: NX_CHAR
+    description: UTF-8 string representation
+    base: str
+  NX_CHAR_OR_NUMBER:
+    uri: NX_CHAR_OR_NUMBER
+    description: Any valid character string or NeXus number representation
+    base:
+      any_of:
+        - NX_CHAR
+        - NX_NUMBER
+  NX_COMPLEX:
+    uri: NX_COMPLEX
+    description: Representation of complex numbers
+    base: complex
+  NX_DATE_TIME:
+    uri: NX_DATE_TIME
+    description: Alias for the ISO8601 date/time stamp
+    base: str
+    pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+  NX_FLOAT:
+    uri: NX_FLOAT
+    description: Floating point number
+    base: float
+  NX_INT:
+    uri: NX_INT
+    description: Integer number
+    base: int
+  NX_NUMBER:
+    uri: NX_NUMBER
+    description: Any valid NeXus number representation
+    base:
+      any_of:
+        - NX_INT
+        - NX_UINT
+        - NX_FLOAT
+        - NX_COMPLEX
+        - NX_CCOMPLEX
+        - NX_PCOMPLEX
+  NX_PCOMPLEX:
+    uri: NX_PCOMPLEX
+    description: Polar representation of complex numbers
+    base: str
+  NX_POSINT:
+    uri: NX_POSINT
+    description: Positive integer number
+    base: int
+    minimum_value: 0
+  NX_QUATERNION:
+    uri: NX_QUATERNION
+    description: Representation of quaternion numbers
+    base: str
+  NX_UINT:
+    uri: NX_UINT
+    description: Unsigned integer number
+    base: int
+    minimum_value: 0
+  string:
+    uri: string
+    description: A string
+    base: str
+  integer:
+    uri: integer
+    description: An integer
+    base: int
+  NX_ANY:
+    uri: NX_ANY
+    description: Any valid NeXus representation
+    base:
+        any_of:
+          - ISO8601
+          - NX_BINARY
+          - NX_BOOLEAN
+          - NX_CCOMPLEX
+          - NX_CHAR
+          - NX_COMPLEX
+          - NX_DATE_TIME
+          - NX_FLOAT
+          - NX_INT
+          - NX_NUMBER
+          - NX_PCOMPLEX
+          - NX_POSINT
+          - NX_QUATERNION
+          - NX_UINT
+
+enums:
+  UnitCategory:
+    permissible_values:
+      NX_ANGLE:
+        description: "units of angle, example: rad"
+      NX_ANY:
+        description: "units for things like logs that aren’t picky on units"
+      NX_AREA:
+        description: "units of area, example: m^2 | barns"
+      NX_CHARGE:
+        description: "units of electrical charge, example: C"
+      NX_COUNT:
+        description: "units of quantity of item(s) such as number of photons, neutrons, pulses, or other counting events"
+      NX_CROSS_SECTION:
+        description: "units of area (alias of NX_AREA), example: barn"
+      NX_CURRENT:
+        description: "units of electrical current, example: A"
+      NX_DIMENSIONLESS:
+        description: "units for fields where the units cancel out (NOTE: not the same as NX_UNITLESS), example: m/m"
+      NX_EMITTANCE:
+        description: "units of emittance (length * angle) of a radiation source, example: nm*rad"
+      NX_ENERGY:
+        description: "units of energy, example: J | keV"
+      NX_FLUX:
+        description: "units of flux, example: 1/s/cm^2"
+      NX_FREQUENCY:
+        description: "units of frequency, example: Hz"
+      NX_LENGTH:
+        description: "units of length, example: m"
+      NX_MASS:
+        description: "units of mass, example: g"
+      NX_MASS_DENSITY:
+        description: "units of mass density, example: g/cm^3"
+      NX_MOLECULAR_WEIGHT:
+        description: "units of molecular weight, example: g/mol"
+      NX_PERIOD:
+        description: "units of time, period of pulsed source (alias to NX_TIME), example: us"
+      NX_PER_AREA:
+        description: "units of 1/length^2, example: 1/m^2"
+      NX_PER_LENGTH:
+        description: "units of 1/length, example: 1/m"
+      NX_POWER:
+        description: "units of power, example: W"
+      NX_PRESSURE:
+        description: "units of pressure, example: Pa"
+      NX_PULSES:
+        description: "DEPRECATED: see NX_COUNT, example: units of clock pulses (alias to NX_NUMBER)"
+      NX_SCATTERING_LENGTH_DENSITY:
+        description: "units of scattering length density, example: m/m^3"
+      NX_SOLID_ANGLE:
+        description: "units of solid angle, example: sr | steradian"
+      NX_TEMPERATURE:
+        description: "units of temperature, example: K"
+      NX_TIME:
+        description: "units of time, example: s"
+      NX_TIME_OF_FLIGHT:
+        description: "units of (neutron) time of flight (alias to NX_TIME), example: s"
+      NX_TRANSFORMATION:
+        description: "units of the specified transformation, example: could be any of these: NX_LENGTH, NX_ANGLE, or NX_UNITLESS"
+      NX_UNITLESS:
+        description: "for fields that don’t have a unit (e.g. hkl) so that they don’t inherit the wrong units (NOTE: not the same as NX_DIMENSIONLESS), example: \"\""
+      NX_VOLTAGE:
+        description: "units of voltage, example: V"
+      NX_VOLUME:
+        description: "units of volume, example: m^3"
+      NX_WAVELENGTH:
+        description: "units of wavelength, example: angstrom"
+      NX_WAVENUMBER:
+        description: "units of wavenumber or Q, example: 1/nm | 1/angstrom"

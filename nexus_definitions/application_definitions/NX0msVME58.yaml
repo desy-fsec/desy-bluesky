@@ -1,0 +1,20 @@
+"inherits_from": NXpositioner
+"class": 0msVME58
+"@default":
+  "value": "value"
+  "dtype": char
+  "shape": []
+"name":
+  "class": NXfield
+  "value": 0msVME58
+  "dtype": char
+  "shape": []
+  "kwargs": {}
+"value":
+  "class": NXfield
+  "value": 5.0
+  "dtype": float64
+  "shape": []
+  "kwargs": {}
+  "@units": cm
+

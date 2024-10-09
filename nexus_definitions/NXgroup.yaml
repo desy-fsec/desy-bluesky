@@ -1,0 +1,14 @@
+id: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions/NXgroup.yaml
+name: NXgroup
+description: A schema for NXgroup
+prefixes:
+  desy_bluesky_nx: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions
+default_prefix:
+  desy_bluesky_nx
+imports:
+  - NXobject
+
+classes:
+  NXgroup:
+    is_a: NXobject
+    description: A class representing an NXgroup

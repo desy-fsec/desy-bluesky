@@ -1,49 +1,36 @@
 from __future__ import annotations
 
-from typing import Optional, Union
-
 from bluesky.protocols import Stoppable
 
 from ophyd_async.core import (
     AsyncStatus,
-    ConfigSignal,
     HintedSignal,
 )
 
 from ophyd_async.core import (
-    SignalR,
     SignalX,
     SignalRW,
     DEFAULT_TIMEOUT,
 )
 
-from tango import DeviceProxy as SyncDeviceProxy
-from tango.asyncio import DeviceProxy as AsyncDeviceProxy
+from tango import DeviceProxy
 
 from .fsec_readable_device import FSECReadableDevice
 
 
 class VmMotor(FSECReadableDevice, Stoppable):
     Position: SignalRW[float]
-    CwLimit: SignalR[float]
-    CcwLimit: SignalR[float]
-    UnitLimitMin: SignalR[float]
-    UnitLimitMax: SignalR[float]
     StopMove: SignalX
 
     # --------------------------------------------------------------------
     def __init__(
             self,
-            trl: Optional[str] = None,
-            device_proxy: Optional[Union[AsyncDeviceProxy, SyncDeviceProxy]] = None,
+            trl: str | None = None,
+            device_proxy: DeviceProxy | None = None,
             name: str = "",
     ) -> None:
         super().__init__(trl, device_proxy, name)
         self.add_readables([self.Position], HintedSignal)
-        self.add_readables([self.CwLimit,
-                            self.CcwLimit,
-                            self.UnitLimitMin,
-                            self.UnitLimitMax], ConfigSignal)
         self._set_success = True
 
     # --------------------------------------------------------------------

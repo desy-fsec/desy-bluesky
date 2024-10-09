@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional, Union
-
 from bluesky.protocols import Movable, Stoppable
 
 from ophyd_async.core import (
@@ -12,11 +10,11 @@ from ophyd_async.core import (
     ConfigSignal,
     SignalRW,
     WatchableAsyncStatus,
-    SignalX
+    SignalX,
+    wait_for_value,
 )
 
-from tango import DeviceProxy as SyncDeviceProxy
-from tango.asyncio import DeviceProxy as AsyncDeviceProxy
+from tango import DeviceProxy, DevState
 
 from .fsec_readable_device import FSECReadableDevice
 
@@ -27,8 +25,8 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
 
     def __init__(
             self,
-            trl: Optional[str] = None,
-            device_proxy: Optional[Union[AsyncDeviceProxy, SyncDeviceProxy]] = None,
+            trl: str | None = None,
+            device_proxy: DeviceProxy | None = None,
             name: str = "",
             offset: float = 0.0,
     ) -> None:
@@ -50,7 +48,7 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
 
         await self.Position.set(new_position, timeout=timeout)
 
-        move_status = self.wait_for_idle()
+        move_status = AsyncStatus(wait_for_value(self.state, DevState.ON, timeout=timeout))
         return move_status
 
     # --------------------------------------------------------------------

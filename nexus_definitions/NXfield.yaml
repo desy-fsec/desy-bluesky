@@ -1,0 +1,64 @@
+id: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions/NXfield.yaml
+name: NXfield
+description: A class representing an NXfield
+prefixes:
+  desy_bluesky_nx: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions
+default_prefix:
+  desy_bluesky_nx
+imports:
+  - base_types
+  - NXobject
+
+classes:
+  NXfield:
+    is_a: NXobject
+    abstract: true
+    description: A class representing an NXfield
+    attributes:
+      value:
+        description: The value of the NXfield, which can be any of the
+        any_of:
+          - range: ISO8601
+          - range: NX_BINARY
+          - range: NX_BOOLEAN
+          - range: NX_CCOMPLEX
+          - range: NX_CHAR
+          - range: NX_CHAR_OR_NUMBER
+          - range: NX_COMPLEX
+          - range: NX_DATE_TIME
+          - range: NX_FLOAT
+          - range: NX_INT
+          - range: NX_NUMBER
+          - range: NX_PCOMPLEX
+          - range: NX_POSINT
+          - range: NX_QUATERNION
+          - range: NX_UINT
+        multivalued: true
+      dtype:
+        description: The data type of the NXfield value
+        range: string
+        pattern:
+          exactly_one_of:
+            - "float32"
+            - "float64"
+            - "int8"
+            - "int16"
+            - "int32"
+            - "int64"
+            - "uint8"
+            - "uint16"
+            - "uint32"
+            - "uint64"
+            - "char"
+      shape:
+        description: The shape of the NXfield value
+        range: integer
+        array:
+          exact_number_dimensions: 1
+      kwargs:
+        description: Additional keyword arguments for the NXfield
+        range: string
+        multivalued: true
+      units:
+        description: Units associated with the NXfield value
+        range: NXattr_units

@@ -26,7 +26,7 @@ NPArray = npt.NDArray
 class NXattrModel(BaseModel):
     nxclass: Optional[str] = Field("NXattr",
                                    description="The class of the NXattr.")
-    value: Union[str, Scalar, ArrayLike] = Field(...,
+    nxdata: Union[str, Scalar, ArrayLike] = Field(...,
                                                  description="Value of the attribute.")
     dtype: Optional[str] = Field(None,
                                  description="Data type of the attribute.")
@@ -78,7 +78,7 @@ class NXobjectModel(BaseModel):
     nxfilename: Optional[str] = Field(None,
                                       description="The file name of NeXus object's "
                                                   "tree file handle.")
-    attrs: Dict[str, Any] = Field(default_factory=dict,
+    attrs: Optional[Dict[str, Any]] = Field(default_factory=dict,
                                   description="A dictionary of the NeXus object's"
                                               " attributes.")
 
@@ -87,23 +87,19 @@ class NXobjectModel(BaseModel):
         extra = 'forbid'
 
 
-class NXfieldModel(BaseModel):
+class NXfieldModel(NXobjectModel):
+    inherits_from: Optional[str] = Field("NXobject",
+                                         description="Base class of the object.")
     nxclass: Optional[str] = Field("NXfield",
                                    description="The class of the NXfield.")
-    value: Optional[Union[int, float, ArrayLike, str]] = Field(...,
+    nxdata: Optional[Union[int, float, ArrayLike, str]] = Field(...,
                                                                description="Value of"
                                                                            " the field"
                                                                            ".")
-    name: Optional[str] = Field(None,
-                                description="Name of the field.")
     shape: Optional[Union[list, Tuple[int]]] = Field(None,
                                                      description="Shape of the field.")
     dtype: Optional[Union[str, np.dtype]] = Field(None,
                                                   description="Data type of the field.")
-    group: Optional['NXgroupModel'] = Field(None,
-                                            description="The parent group"
-                                                        " containing this field within"
-                                                        " a NeXus tree.")
     
     # @model_validator(mode='before')
     # def convert_extra_attributes(cls, values: Dict[str, Any]) -> Dict[str, Any]:
@@ -123,9 +119,10 @@ class NXfieldModel(BaseModel):
         extra = 'allow'
 
 
-class NXgroupModel(BaseModel):
+class NXgroupModel(NXobjectModel):
     nxclass: Optional[str] = Field("NXgroup",
                                    description="The class of the NXgroup.")
+    inherits_from: Optional[str] = Field("NXobject", description="Base class of the object.")
     
     class Config:
         arbitrary_types_allowed = True

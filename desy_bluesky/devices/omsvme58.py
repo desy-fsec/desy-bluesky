@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Union, Optional
 
 from bluesky.protocols import Movable, Stoppable
 
@@ -14,16 +13,16 @@ from ophyd_async.core import (
     HintedSignal,
     SignalRW,
     SignalX,
+    wait_for_value,
 )
 from ophyd_async.core import (
     DEFAULT_TIMEOUT,
     CalculatableTimeout,
-    CalculateTimeout,
+    CALCULATE_TIMEOUT,
     WatcherUpdate
 )
 
-from tango import DeviceProxy as SyncDeviceProxy
-from tango.asyncio import DeviceProxy as AsyncDeviceProxy
+from tango import DeviceProxy, DevState
 
 from .fsec_readable_device import FSECReadableDevice
 
@@ -38,8 +37,8 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     # --------------------------------------------------------------------
     def __init__(
             self,
-            trl: Optional[str] = None,
-            device_proxy: Optional[Union[AsyncDeviceProxy, SyncDeviceProxy]] = None,
+            trl: str | None = None,
+            device_proxy: DeviceProxy | None = None,
             name: str = "",
     ) -> None:
         super().__init__(trl, device_proxy, name)
@@ -54,7 +53,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     async def set(
         self,
         value: float,
-        timeout: CalculatableTimeout = CalculateTimeout,
+        timeout: CalculatableTimeout = CALCULATE_TIMEOUT,
     ):
         self._set_success = True
         (
@@ -68,7 +67,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
             self.SlewRate.get_value(),
             self.Acceleration.get_value(),
         )
-        if timeout is CalculateTimeout:
+        if timeout is CALCULATE_TIMEOUT:
             assert velocity > 0, "Motor has zero velocity"
             timeout = (
                 (abs(value - old_position) * conversion / velocity)
@@ -78,7 +77,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
 
         await self.Position.set(value, wait=False, timeout=timeout)
 
-        move_status = self.wait_for_idle()
+        move_status = AsyncStatus(wait_for_value(self.state, DevState.ON, timeout=timeout))
 
         try:
             async for current_position in observe_value(

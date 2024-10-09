@@ -16,12 +16,10 @@ from .sis3820 import SIS3820Counter
 
 
 class GatedCounter(StandardReadable, Triggerable):
-    # gate: DGG2Timer
-    # counter: SIS3820Counter
 
     def __init__(self,
-                 gate: Union[DGG2Timer, str],
-                 counter: Union[SIS3820Counter, str],
+                 gate: DGG2Timer | str,
+                 counter: SIS3820Counter | str,
                  name: str = "") -> None:
 
         with self.add_children_as_readables():

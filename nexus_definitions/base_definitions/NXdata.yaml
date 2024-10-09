@@ -1,0 +1,58 @@
+id: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions/base_definitions/NXdata.yaml
+name: NXdata
+prefixes:
+  desy_bluesky_nx: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions
+  base_definitions: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions/base_definitions
+default_prefix:
+  base_definitions
+imports:
+  - ../base_types
+  - ../NXfield
+  - ../NXattr
+  - ../NXgroup
+
+classes:
+  NXdata:
+    is_a: NXgroup
+    description: A class representing an NXdata
+    attributes:
+      signal:
+        range: NXattr
+      auxiliary_signals:
+        range: NXattr
+      default_slice:
+        range: NXattr
+      AXISNAME_indices:
+        range: NXattr
+      axes:
+        range: NXattr
+      AXISNAME:
+        range: NXfield
+      DATA:
+        range: DATAfield
+      FIELDNAME_errors:
+        range: NXfield
+      errors:
+        range: NXfield
+      scaling_factor:
+        range: NXfield
+      offset:
+        range: NXfield
+      title:
+        range: NXfield
+      x:
+        range: NXfield
+      y:
+        range: NXfield
+      z:
+        range: NXfield
+
+  DATAfield:
+    is_a: NXfield
+    attributes:
+      signal:
+        range: NXattr
+      axes:
+        range: NXattr
+      long_name:
+        range: NXattr

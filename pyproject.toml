@@ -24,6 +24,11 @@ aioca = "*"
 ophyd = "*"
 ophyd-async = { git = "https://gitlab.desy.de/fs-ec/desy-bluesky/ophyd-async", branch = "tango_support" }
 
+[tool.poetry.dev-dependencies]
+pre-commit = "*"
+poetry = "*"
+ruff = "*"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

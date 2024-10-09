@@ -1,0 +1,20 @@
+id: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions/NXobject.yaml
+name: NXobject
+description: An abstract class representing an NXobject
+prefixes:
+  desy_bluesky_nx: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions
+default_prefix:
+  desy_bluesky_nx
+imports:
+  - NXattr
+
+classes:
+  NXobject:
+    abstract: true
+    description: A class representing an NXobject
+    attributes:
+      "*":
+        description: An NXobject may have any number of nested NXobjects or NXattr
+        any_of:
+          - range: NXattr
+          - range: NXobject

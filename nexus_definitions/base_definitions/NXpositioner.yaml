@@ -1,0 +1,47 @@
+id: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions/base_definitions/NXpositioner.yaml
+name: NXpositioner
+description: A class representing an NXpositioner
+prefixes:
+  desy_bluesky_nx: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions
+  base_definitions: https://github.com/desy-fsec/desy-bluesky/tree/main/nexus_definitions/base_definitions
+default_prefix:
+  base_definitions
+imports:
+  - ../base_types
+  - ../NXfield
+  - ../NXattr
+  - ../NXgroup
+
+classes:
+  NXpositioner:
+    is_a: NXgroup
+    description: A class representing an NXpositioner
+    attributes:
+      default:
+        range: NXattr_NX_CHAR
+      name:
+        range: NXfield_NX_CHAR
+      description:
+        range: NXfield_NX_CHAR
+      value:
+        range: NXfield_NX_NUMBER
+      raw_value:
+        range: NXfield_NX_NUMBER
+      target_value:
+        range: NXfield_NX_NUMBER
+      tolerance:
+        range: NXfield_NX_NUMBER
+      soft_limit_min:
+        range: NXfield_NX_NUMBER
+      soft_limit_max:
+        range: NXfield_NX_NUMBER
+      velocity:
+        range: NXfield_NX_NUMBER
+      acceleration_time:
+        range: NXfield_NX_NUMBER
+      controller_record:
+        range: NXfield_NX_CHAR
+      depends_on:
+        range: NXfield_NX_CHAR
+      TRANSFORMATIONS:
+        range: NXgroup

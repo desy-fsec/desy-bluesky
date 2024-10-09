@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Optional, Union
 
 from ophyd_async.core import (
     ConfigSignal,
@@ -9,8 +8,7 @@ from ophyd_async.core import (
     SignalX,
 )
 
-from tango import DeviceProxy as SyncDeviceProxy
-from tango.asyncio import DeviceProxy as AsyncDeviceProxy
+from tango import DeviceProxy
 
 from .fsec_readable_device import FSECReadableDevice
 
@@ -23,8 +21,8 @@ class SIS3820Counter(FSECReadableDevice):
 
     def __init__(
             self,
-            trl: Optional[str] = None,
-            device_proxy: Optional[Union[AsyncDeviceProxy, SyncDeviceProxy]] = None,
+            trl: str | None = None,
+            device_proxy: DeviceProxy | None = None,
             name: str = "",
     ) -> None:
         super().__init__(trl, device_proxy, name)
