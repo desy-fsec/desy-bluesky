@@ -48,7 +48,7 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
 
         await self.Position.set(new_position, timeout=timeout)
 
-        move_status = AsyncStatus(wait_for_value(self.state, DevState.ON, timeout=timeout))
+        move_status = AsyncStatus(wait_for_value(self.State, DevState.ON, timeout=timeout))
         return move_status
 
     # --------------------------------------------------------------------

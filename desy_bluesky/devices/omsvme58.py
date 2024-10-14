@@ -77,7 +77,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
 
         await self.Position.set(value, wait=False, timeout=timeout)
 
-        move_status = AsyncStatus(wait_for_value(self.state, DevState.ON, timeout=timeout))
+        move_status = AsyncStatus(wait_for_value(self.State, DevState.ON, timeout=timeout))
 
         try:
             async for current_position in observe_value(
