@@ -45,7 +45,7 @@ class GatedArray(StandardReadable, Triggerable):
         self.reset_on_trigger = soft_signal_rw(datatype=bool,
                                                name="reset_on_trigger",
                                                initial_value=True)
-        self.add_readables([self.gate.SampleTime, self.reset_on_trigger], ConfigSignal)
+        self.add_readables([self.reset_on_trigger], ConfigSignal)
 
         super().__init__(name=name)
 
