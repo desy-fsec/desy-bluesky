@@ -22,7 +22,7 @@ pyepics = "*"
 pytango = "*"
 aioca = "*"
 ophyd = "*"
-ophyd-async = { git = "https://gitlab.desy.de/fs-ec/desy-bluesky/ophyd-async", branch = "tango_support" }
+ophyd-async = "*"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "*"
