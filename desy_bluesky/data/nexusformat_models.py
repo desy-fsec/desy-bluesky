@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Union, Dict, Any, Tuple
+from typing import Optional, Union, Dict, Any, Tuple, Type
 import numpy.typing as npt
 import numpy as np
 
@@ -11,7 +11,15 @@ __all__ = ['NXattrModel',
            'NXlinkFieldModel',
            'NXlinkGroupModel',
            'NXdataModel',
-           'NXentryModel',]
+           'NXentryModel',
+           'NXfieldModelWithString',
+           'NXfieldModelWithInt',
+           'NXfieldModelWithFloat',
+           'NXfieldModelWithArray',
+           'NXattrModelWithString',
+           'NXattrModelWithScalar',
+           'NXattrModelWithArray'
+]
 
 # scalar type
 Scalar = Union[str, float, int]
@@ -22,11 +30,24 @@ NPType = np.dtype
 # numpy array
 NPArray = npt.NDArray
 
+class PrePostRunString(str):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Any, *args, **kwargs) -> 'PrePostRunString':
+        if not isinstance(value, str):
+            raise ValueError('string required')
+        if not (value.startswith('$pre-run') or value.startswith('$post-run')):
+            raise ValueError('string must start with "$pre-run" or "$post-run"')
+        return cls(value)
+
 
 class NXattrModel(BaseModel):
     nxclass: Optional[str] = Field("NXattr",
                                    description="The class of the NXattr.")
-    nxdata: Union[str, Scalar, ArrayLike] = Field(...,
+    value: Union[PrePostRunString, str, Scalar, ArrayLike] = Field(...,
                                                  description="Value of the attribute.")
     dtype: Optional[str] = Field(None,
                                  description="Data type of the attribute.")
@@ -92,7 +113,7 @@ class NXfieldModel(NXobjectModel):
                                          description="Base class of the object.")
     nxclass: Optional[str] = Field("NXfield",
                                    description="The class of the NXfield.")
-    nxdata: Optional[Union[int, float, ArrayLike, str]] = Field(...,
+    value: Optional[Union[PrePostRunString, int, float, ArrayLike, str]] = Field(...,
                                                                description="Value of"
                                                                            " the field"
                                                                            ".")
@@ -101,22 +122,9 @@ class NXfieldModel(NXobjectModel):
     dtype: Optional[Union[str, np.dtype]] = Field(None,
                                                   description="Data type of the field.")
     
-    # @model_validator(mode='before')
-    # def convert_extra_attributes(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-    #     for key, value in values.items():
-    #         if key not in cls.model_fields:
-    #             if isinstance(value, dict):
-    #                 print("Converting extra attribute to NXattrModel")
-    #                 print(f"Key: {key}, Value: {value}")
-    #                 values[key] = NXattrModel(**value)
-    #             else:
-    #                 raise TypeError(f"Invalid type for extra attribute '{key}': {type(value)}. "
-    #                                 f"Expected a dictionary to convert to NXattrModel.")
-    #     return values
-    
     class Config:
         arbitrary_types_allowed = True
-        extra = 'allow'
+        extra = 'forbid'
 
 
 class NXgroupModel(NXobjectModel):
@@ -156,7 +164,7 @@ class NXlinkFieldModel(NXlinkModel):
         return "NXlink"
     
     @property
-    def nxdata(self) -> Optional[Union[int, float, str, list, tuple]]:
+    def value(self) -> Optional[Union[int, float, str, list, tuple]]:
         return self.target.value if isinstance(self.target, NXfieldModel) else None
 
 
@@ -221,4 +229,28 @@ class NXentryModel(NXgroupModel):
     class Config:
         arbitrary_types_allowed = True
         extra = 'forbid'
+
+
+class NXattrModelWithString(NXattrModel):
+    value: Union[PrePostRunString, str] = Field(..., description="Value of the attribute.")
+
+class NXattrModelWithScalar(NXattrModel):
+    value: Union[Scalar, PrePostRunString] = Field(..., description="Value of the attribute.")
+
+class NXattrModelWithArray(NXattrModel):
+    value: Union[ArrayLike, PrePostRunString] = Field(..., description="Value of the attribute.")
+
+class NXfieldModelWithString(NXfieldModel):
+    value: Union[str, PrePostRunString] = Field(..., description="NX data field with string type")
+
+class NXfieldModelWithInt(NXfieldModel):
+    value: Union[int, PrePostRunString] = Field(..., description="NX data field with int type")
+
+class NXfieldModelWithFloat(NXfieldModel):
+    value: Union[float, PrePostRunString] = Field(..., description="NX data field with float type")
+
+class NXfieldModelWithArray(NXfieldModel):
+    value: Union[ArrayLike, PrePostRunString] = Field(..., description="NX data field with array-like type")
+
+
     
