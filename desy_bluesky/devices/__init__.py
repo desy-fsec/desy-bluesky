@@ -9,6 +9,7 @@ from .vm_motor import VmMotor
 from .pilc import PiLC
 from .gated_array import GatedArray
 from .fsec_readable_device import FSECReadableDevice
+from .qserver import QserverDevice
 
 __all__ = [
     "DGG2Timer",
@@ -22,4 +23,5 @@ __all__ = [
     "PiLC",
     "GatedArray",
     "FSECReadableDevice",
+    "QserverDevice",
 ]
