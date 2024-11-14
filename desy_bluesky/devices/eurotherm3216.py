@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Tuple
-
 import asyncio
 
 from dataclasses import dataclass
@@ -16,14 +14,10 @@ from ophyd_async.core import (
     ConfigSignal,
     HintedSignal,
     SignalRW,
-    SignalX,
     wait_for_value,
     soft_signal_rw,
 )
 from ophyd_async.core import (
-    DEFAULT_TIMEOUT,
-    CalculatableTimeout,
-    CALCULATE_TIMEOUT,
     WatcherUpdate
 )
 
