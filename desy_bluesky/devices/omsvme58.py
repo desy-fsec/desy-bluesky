@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
-from bluesky.protocols import Movable, Stoppable
+from bluesky.protocols import Movable, Stoppable, Preparable, Flyable
 
 from ophyd_async.core import observe_value
 
@@ -19,22 +19,21 @@ from ophyd_async.core import (
     DEFAULT_TIMEOUT,
     CalculatableTimeout,
     CALCULATE_TIMEOUT,
-    WatcherUpdate
+    WatcherUpdate,
+    soft_signal_rw
 )
 
 from tango import DeviceProxy, DevState
 
 from .fsec_readable_device import FSECReadableDevice
 
-
-class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
+class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Preparable, Flyable):
     Position: SignalRW[float]
     SlewRate: SignalRW[int]
     Conversion: SignalRW[float]
     Acceleration: SignalRW[int]
     StopMove: SignalX
-    
-    # --------------------------------------------------------------------
+
     def __init__(
             self,
             trl: str | None = None,
@@ -48,6 +47,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
                             self.Conversion,
                             self.Acceleration],
                            ConfigSignal)
+        self._fly_setpoint = soft_signal_rw(float, None, name="_fly_setpoint")
 
     @WatchableAsyncStatus.wrap
     async def set(
@@ -95,7 +95,24 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
         if not self._set_success:
             raise RuntimeError("Motor was stopped")
 
-    # --------------------------------------------------------------------
     def stop(self, success: bool = False) -> AsyncStatus:
         self._set_success = success
         return self.StopMove.trigger()
+
+    @AsyncStatus.wrap
+    async def prepare(self, value):
+        try:
+            fvalue = float(value)
+            await self._fly_setpoint.set(fvalue)
+        except ValueError:
+            raise ValueError("Setpoint must be a float")
+
+    @AsyncStatus.wrap
+    async def kickoff(self):
+        new_position = await self._fly_setpoint.get_value()
+        self.set(new_position)
+
+    @AsyncStatus.wrap
+    async def complete(self):
+        await wait_for_value(self.State, DevState.ON, None)
+
