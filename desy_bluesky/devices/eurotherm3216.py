@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+from typing import Tuple
+
 import asyncio
 
-from bluesky.protocols import Movable, Stoppable
+from dataclasses import dataclass
+
+from bluesky.protocols import Movable, Flyable, Preparable, Stoppable
 
 from ophyd_async.core import observe_value
 
@@ -14,6 +18,7 @@ from ophyd_async.core import (
     SignalRW,
     SignalX,
     wait_for_value,
+    soft_signal_rw,
 )
 from ophyd_async.core import (
     DEFAULT_TIMEOUT,
@@ -26,8 +31,12 @@ from tango import DeviceProxy, DevState
 
 from .fsec_readable_device import FSECReadableDevice
 
+@dataclass
+class Eurotherm3216Config:
+    Setpoint: float | None = None
+    SetpointRamp: float | None = None
 
-class Eurotherm3216(FSECReadableDevice, Movable):
+class Eurotherm3216(FSECReadableDevice, Movable, Flyable, Preparable, Stoppable):
     Temperature: SignalRW[float]
     Setpoint: SignalRW[float]
     SetpointMin: SignalRW[float]
@@ -53,6 +62,8 @@ class Eurotherm3216(FSECReadableDevice, Movable):
                             self.PowerMin,
                             self.PowerMax,
                             self.CurrentPIDSet], ConfigSignal)
+        self._fly_setpoint = soft_signal_rw(float, None, name="_fly_setpoint")
+        self._fly_setpoint_ramp = soft_signal_rw(float, None, name="_fly_setpoint_ramp")
 
     @WatchableAsyncStatus.wrap
     async def set(self, value: float, timeout=None):
@@ -77,3 +88,28 @@ class Eurotherm3216(FSECReadableDevice, Movable):
             raise RuntimeError(f"{exc}") from exc
         if not self._set_success:
             raise RuntimeError("Motor was stopped")
+
+    def get_config(self) -> Eurotherm3216Config:
+        return Eurotherm3216Config()
+
+    @AsyncStatus.wrap
+    async def prepare(self, value: Eurotherm3216Config):
+        if value.Setpoint is not None:
+            await self._fly_setpoint.set(value.Setpoint)
+        if value.SetpointRamp is not None:
+            await self._fly_setpoint_ramp.set(value.SetpointRamp)
+
+    @AsyncStatus.wrap
+    async def kickoff(self):
+        new_setpoint = await self._fly_setpoint.get_value()
+        self.set(new_setpoint)
+
+    @AsyncStatus.wrap
+    async def complete(self):
+        await wait_for_value(self.State, DevState.ON, None)
+
+    @AsyncStatus.wrap
+    async def stop(self, success: bool = False):
+        self._set_success = success
+        await self.Setpoint.set(await self.Temperature.get_value())
+        await wait_for_value(self.State, DevState.ON, None)
