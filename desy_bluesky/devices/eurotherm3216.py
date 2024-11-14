@@ -58,6 +58,7 @@ class Eurotherm3216(FSECReadableDevice, Movable, Flyable, Preparable, Stoppable)
                             self.CurrentPIDSet], ConfigSignal)
         self._fly_setpoint = soft_signal_rw(float, None, name="_fly_setpoint")
         self._fly_setpoint_ramp = soft_signal_rw(float, None, name="_fly_setpoint_ramp")
+        self._set_success = True
 
     @WatchableAsyncStatus.wrap
     async def set(self, value: float, timeout=None):
