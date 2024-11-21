@@ -20,7 +20,8 @@ from ophyd_async.core import (
     CalculatableTimeout,
     CALCULATE_TIMEOUT,
     WatcherUpdate,
-    soft_signal_rw
+    soft_signal_rw,
+    StandardReadableFormat as Format,
 )
 
 from tango import DeviceProxy, DevState
@@ -42,11 +43,11 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Preparable, Flyable)
     ) -> None:
         super().__init__(trl, device_proxy, name)
         self._set_success = True
-        self.add_readables([self.Position], HintedSignal)
+        self.add_readables([self.Position], Format.HINTED_SIGNAL)
         self.add_readables([self.SlewRate,
                             self.Conversion,
                             self.Acceleration],
-                           ConfigSignal)
+                            Format.CONFIG_SIGNAL)
         self._fly_setpoint = soft_signal_rw(float, None, name="_fly_setpoint")
 
     @WatchableAsyncStatus.wrap

@@ -4,7 +4,8 @@ from ophyd_async.core import (
     HintedSignal,
     soft_signal_rw,
     SignalR,
-    SignalX
+    SignalX,
+    StandardReadableFormat as Format,
 )
 
 from .fsec_readable_device import FSECReadableDevice
@@ -22,7 +23,7 @@ class VcCounter(FSECReadableDevice):
             name: str = "",
     ) -> None:
         super().__init__(trl, device_proxy, name)
-        self.add_readables([self.Counts], HintedSignal)
+        self.add_readables([self.Counts], Format.HINTED_SIGNAL)
 
         # Not used, I added it here because SIS3820 has it
         self.offset = soft_signal_rw(float, initial_value=0.0)

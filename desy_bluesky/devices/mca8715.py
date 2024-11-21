@@ -1,4 +1,4 @@
-import numpy.typing as npt
+import numpy as np
 
 from ophyd_async.core import (
     AsyncStatus,
@@ -7,6 +7,8 @@ from ophyd_async.core import (
     SignalRW,
     SignalX,
     SignalR,
+    Array1D,
+    StandardReadableFormat as Format
 )
 from bluesky.protocols import (
     Triggerable,
@@ -22,9 +24,9 @@ class MCA8715(FSECReadableDevice, Triggerable):
     A device that controls a MCA8715 Multi-Channel Analyzer.
     """
     DataLength: SignalRW[int]
-    Data: SignalRW[npt.NDArray[int]]
-    Counts: SignalR[npt.NDArray[float]]
-    CountsDiff: SignalR[npt.NDArray[float]]
+    Data: SignalRW[Array1D[np.int32]]
+    Counts: SignalR[Array1D[np.float64]]
+    CountsDiff: SignalR[Array1D[np.float64]]
     Clear: SignalX
 
     def __init__(
@@ -34,8 +36,8 @@ class MCA8715(FSECReadableDevice, Triggerable):
             name: str = "",
     ) -> None:
         super().__init__(trl, device_proxy, name)
-        self.add_readables([self.Data, self.Counts, self.CountsDiff], HintedSignal)
-        self.add_readables([self.DataLength], ConfigSignal)
+        self.add_readables([self.Data, self.Counts, self.CountsDiff], Format.HINTED_SIGNAL)
+        self.add_readables([self.DataLength], Format.CONFIG_SIGNAL)
 
     @AsyncStatus.wrap
     async def trigger(self) -> None:

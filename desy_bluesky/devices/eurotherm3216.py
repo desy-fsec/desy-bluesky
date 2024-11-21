@@ -16,6 +16,7 @@ from ophyd_async.core import (
     SignalRW,
     wait_for_value,
     soft_signal_rw,
+    StandardReadableFormat as Format,
 )
 from ophyd_async.core import (
     WatcherUpdate
@@ -50,12 +51,12 @@ class Eurotherm3216(FSECReadableDevice, Movable, Flyable, Preparable, Stoppable)
                             self.Setpoint,
                             self.WorkingSetpoint,
                             self.SetpointRamp,
-                            self.SetpointDwell], HintedSignal)
+                            self.SetpointDwell], Format.HINTED_SIGNAL)
         self.add_readables([self.SetpointMin,
                             self.SetpointMax,
                             self.PowerMin,
                             self.PowerMax,
-                            self.CurrentPIDSet], ConfigSignal)
+                            self.CurrentPIDSet], Format.CONFIG_SIGNAL)
         self._fly_setpoint = soft_signal_rw(float, None, name="_fly_setpoint")
         self._fly_setpoint_ramp = soft_signal_rw(float, None, name="_fly_setpoint_ramp")
         self._set_success = True

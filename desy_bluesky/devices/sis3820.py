@@ -3,9 +3,9 @@ from __future__ import annotations
 from ophyd_async.core import (
     ConfigSignal,
     HintedSignal,
-    SignalR,
     SignalRW,
     SignalX,
+    StandardReadableFormat as Format,
 )
 
 from tango import DeviceProxy
@@ -15,7 +15,7 @@ from .fsec_readable_device import FSECReadableDevice
 
 # --------------------------------------------------------------------
 class SIS3820Counter(FSECReadableDevice):
-    Counts: SignalR[float]
+    Counts: SignalRW[float]
     Offset: SignalRW[float]
     Reset: SignalX
 
@@ -26,8 +26,8 @@ class SIS3820Counter(FSECReadableDevice):
             name: str = "",
     ) -> None:
         super().__init__(trl, device_proxy, name)
-        self.add_readables([self.Counts], HintedSignal)
-        self.add_readables([self.Offset], ConfigSignal)
+        self.add_readables([self.Counts], Format.HINTED_SIGNAL)
+        self.add_readables([self.Offset], Format.CONFIG_SIGNAL)
 
     async def reset(self):
         await self.Reset.trigger()

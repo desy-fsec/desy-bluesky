@@ -12,6 +12,7 @@ from ophyd_async.core import (
     WatchableAsyncStatus,
     SignalX,
     wait_for_value,
+    StandardReadableFormat as Format,
 )
 
 from tango import DeviceProxy, DevState
@@ -31,8 +32,8 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
             offset: float = 0.0,
     ) -> None:
         super().__init__(trl, device_proxy, name)
-        self.add_readables([self.Position], HintedSignal)
-        with self.add_children_as_readables(ConfigSignal):
+        self.add_readables([self.Position], Format.HINTED_SIGNAL)
+        with self.add_children_as_readables(Format.CONFIG_SIGNAL):
             self.Offset = soft_signal_rw(float, initial_value=offset)
         self._set_success = True
 

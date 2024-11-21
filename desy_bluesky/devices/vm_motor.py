@@ -5,6 +5,7 @@ from bluesky.protocols import Stoppable
 from ophyd_async.core import (
     AsyncStatus,
     HintedSignal,
+    StandardReadableFormat as Format,
 )
 
 from ophyd_async.core import (
@@ -30,7 +31,7 @@ class VmMotor(FSECReadableDevice, Stoppable):
             name: str = "",
     ) -> None:
         super().__init__(trl, device_proxy, name)
-        self.add_readables([self.Position], HintedSignal)
+        self.add_readables([self.Position], Format.HINTED_SIGNAL)
         self._set_success = True
 
     # --------------------------------------------------------------------

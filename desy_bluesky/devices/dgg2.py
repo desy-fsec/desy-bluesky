@@ -12,7 +12,8 @@ from ophyd_async.core import (
     SignalRW,
     HintedSignal,
     ConfigSignal,
-    wait_for_value
+    wait_for_value,
+    StandardReadableFormat as Format,
 )
 from tango import DeviceProxy, DevState
 
@@ -32,7 +33,7 @@ class DGG2Timer(FSECReadableDevice, Triggerable):
     ) -> None:
         super().__init__(trl, device_proxy, name)
         self._set_success = True
-        self.add_readables([self.SampleTime], HintedSignal)
+        self.add_readables([self.SampleTime], Format.HINTED_SIGNAL)
 
     # --------------------------------------------------------------------
 

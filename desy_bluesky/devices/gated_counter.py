@@ -5,6 +5,7 @@ from ophyd_async.core import (
     AsyncStatus,
     soft_signal_rw,
     ConfigSignal,
+    StandardReadableFormat as Format,
 )
 
 from bluesky.protocols import (
@@ -40,7 +41,7 @@ class GatedCounter(StandardReadable, Triggerable):
         self.reset_on_trigger = soft_signal_rw(datatype=bool,
                                                name="reset_on_trigger",
                                                initial_value=True)
-        self.add_readables([self.reset_on_trigger], ConfigSignal)
+        self.add_readables([self.reset_on_trigger], Format.CONFIG_SIGNAL)
 
         super().__init__(name=name)
 
