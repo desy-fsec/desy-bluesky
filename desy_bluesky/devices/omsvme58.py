@@ -1,54 +1,38 @@
 from __future__ import annotations
 
+from typing import Annotated as A
+
 import asyncio
 
-from bluesky.protocols import Movable, Stoppable, Preparable, Flyable
-
-from ophyd_async.core import observe_value
+from bluesky.protocols import Movable, Stoppable
 
 from ophyd_async.core import (
     WatchableAsyncStatus,
     AsyncStatus,
-    ConfigSignal,
-    HintedSignal,
     SignalRW,
     SignalX,
     wait_for_value,
-)
-from ophyd_async.core import (
+    observe_value,
     DEFAULT_TIMEOUT,
     CalculatableTimeout,
     CALCULATE_TIMEOUT,
     WatcherUpdate,
-    soft_signal_rw,
     StandardReadableFormat as Format,
 )
+from ophyd_async.tango.core import (
+    TangoPolling
+)
 
-from tango import DeviceProxy, DevState
+from tango import DevState
 
 from .fsec_readable_device import FSECReadableDevice
 
-class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Preparable, Flyable):
-    Position: SignalRW[float]
-    SlewRate: SignalRW[int]
-    Conversion: SignalRW[float]
-    Acceleration: SignalRW[int]
+class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
+    Position: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1, 0.1)]
+    SlewRate: A[SignalRW[float], Format.CONFIG_SIGNAL]
+    Conversion: A[SignalRW[float], Format.CONFIG_SIGNAL]
+    Acceleration: A[SignalRW[float], Format.CONFIG_SIGNAL]
     StopMove: SignalX
-
-    def __init__(
-            self,
-            trl: str | None = None,
-            device_proxy: DeviceProxy | None = None,
-            name: str = "",
-    ) -> None:
-        super().__init__(trl, device_proxy, name)
-        self._set_success = True
-        self.add_readables([self.Position], Format.HINTED_SIGNAL)
-        self.add_readables([self.SlewRate,
-                            self.Conversion,
-                            self.Acceleration],
-                            Format.CONFIG_SIGNAL)
-        self._fly_setpoint = soft_signal_rw(float, None, name="_fly_setpoint")
 
     @WatchableAsyncStatus.wrap
     async def set(
@@ -99,21 +83,3 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Preparable, Flyable)
     def stop(self, success: bool = False) -> AsyncStatus:
         self._set_success = success
         return self.StopMove.trigger()
-
-    @AsyncStatus.wrap
-    async def prepare(self, value):
-        try:
-            fvalue = float(value)
-            await self._fly_setpoint.set(fvalue)
-        except ValueError:
-            raise ValueError("Setpoint must be a float")
-
-    @AsyncStatus.wrap
-    async def kickoff(self):
-        new_position = await self._fly_setpoint.get_value()
-        self.set(new_position)
-
-    @AsyncStatus.wrap
-    async def complete(self):
-        await wait_for_value(self.State, DevState.ON, None)
-

@@ -1,10 +1,10 @@
 from abc import abstractmethod
 from typing import Optional
 from ophyd_async.core import SignalR, SignalRW, Device, DeviceVector, T
-from ophyd_async.tango import (
+from ophyd_async.tango.core import (
+    TangoReadable,
     tango_signal_rw,
-    tango_signal_r,
-    TangoReadable
+    tango_signal_r
 )
 from bluesky.protocols import Readable, Stoppable, Movable
 

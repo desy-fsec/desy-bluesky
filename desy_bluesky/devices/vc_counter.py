@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from typing import Annotated as A
+
 from ophyd_async.core import (
-    HintedSignal,
     soft_signal_rw,
     SignalR,
     SignalX,
@@ -13,7 +14,7 @@ from tango import DeviceProxy
 
 
 class VcCounter(FSECReadableDevice):
-    Counts: SignalR[int]
+    Counts: A[SignalR[int], Format.HINTED_UNCACHED_SIGNAL]
     Reset: SignalX
 
     def __init__(
@@ -23,8 +24,6 @@ class VcCounter(FSECReadableDevice):
             name: str = "",
     ) -> None:
         super().__init__(trl, device_proxy, name)
-        self.add_readables([self.Counts], Format.HINTED_SIGNAL)
-
         # Not used, I added it here because SIS3820 has it
         self.offset = soft_signal_rw(float, initial_value=0.0)
 

@@ -1,10 +1,7 @@
-from typing import Union
-
 from ophyd_async.core import (
     StandardReadable,
     AsyncStatus,
     soft_signal_rw,
-    ConfigSignal,
     StandardReadableFormat as Format,
 )
 

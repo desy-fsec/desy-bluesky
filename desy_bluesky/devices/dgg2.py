@@ -1,41 +1,28 @@
 from __future__ import annotations
 
-from bluesky.protocols import Triggerable, Preparable
+from typing import Annotated as A
 
-from ophyd_async.core import (
-    AsyncStatus,
+from bluesky.protocols import Triggerable
+
+from ophyd_async.tango.core import (
+    TangoPolling
 )
 from ophyd_async.core import (
     DEFAULT_TIMEOUT,
+    AsyncStatus,
     SignalX,
-    SignalR,
     SignalRW,
-    HintedSignal,
-    ConfigSignal,
     wait_for_value,
     StandardReadableFormat as Format,
 )
-from tango import DeviceProxy, DevState
+from tango import DevState
 
 from .fsec_readable_device import FSECReadableDevice
 
 
 class DGG2Timer(FSECReadableDevice, Triggerable):
-    SampleTime: SignalRW[float]
+    SampleTime: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     Start: SignalX
-
-    # --------------------------------------------------------------------
-    def __init__(
-            self,
-            trl: str | None = None,
-            device_proxy: DeviceProxy | None = None,
-            name: str = "",
-    ) -> None:
-        super().__init__(trl, device_proxy, name)
-        self._set_success = True
-        self.add_readables([self.SampleTime], Format.HINTED_SIGNAL)
-
-    # --------------------------------------------------------------------
 
     @AsyncStatus.wrap
     async def trigger(self) -> None:

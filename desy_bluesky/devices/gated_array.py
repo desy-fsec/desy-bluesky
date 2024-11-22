@@ -1,11 +1,10 @@
 import asyncio
-from typing import List, Union
+from typing import List
 
 from ophyd_async.core import (
     StandardReadable,
     AsyncStatus,
     soft_signal_rw,
-    ConfigSignal,
     DeviceVector,
     StandardReadableFormat as Format,
 )
@@ -49,8 +48,6 @@ class GatedArray(StandardReadable, Triggerable):
         self.add_readables([self.reset_on_trigger], Format.CONFIG_SIGNAL)
 
         super().__init__(name=name)
-
-    # --------------------------------------------------------------------
     
     @AsyncStatus.wrap
     async def trigger(self) -> None:

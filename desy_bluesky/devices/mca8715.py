@@ -1,9 +1,8 @@
 import numpy as np
+from typing import Annotated as A
 
 from ophyd_async.core import (
     AsyncStatus,
-    HintedSignal,
-    ConfigSignal,
     SignalRW,
     SignalX,
     SignalR,
@@ -23,21 +22,11 @@ class MCA8715(FSECReadableDevice, Triggerable):
     """
     A device that controls a MCA8715 Multi-Channel Analyzer.
     """
-    DataLength: SignalRW[int]
-    Data: SignalRW[Array1D[np.int32]]
-    Counts: SignalR[Array1D[np.float64]]
-    CountsDiff: SignalR[Array1D[np.float64]]
+    DataLength: A[SignalRW[int], Format.CONFIG_SIGNAL]
+    Data: A[SignalRW[Array1D[np.int32]], Format.HINTED_UNCACHED_SIGNAL]
+    Counts: A[SignalR[Array1D[np.float64]], Format.HINTED_UNCACHED_SIGNAL]
+    CountsDiff: A[SignalR[Array1D[np.float64]], Format.HINTED_UNCACHED_SIGNAL]
     Clear: SignalX
-
-    def __init__(
-            self,
-            trl: str | None = None,
-            device_proxy: DeviceProxy | None = None,
-            name: str = "",
-    ) -> None:
-        super().__init__(trl, device_proxy, name)
-        self.add_readables([self.Data, self.Counts, self.CountsDiff], Format.HINTED_SIGNAL)
-        self.add_readables([self.DataLength], Format.CONFIG_SIGNAL)
 
     @AsyncStatus.wrap
     async def trigger(self) -> None:

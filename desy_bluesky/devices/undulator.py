@@ -1,18 +1,22 @@
 from __future__ import annotations
 
+from typing import Annotated as A
+
 from bluesky.protocols import Movable, Stoppable
 
 from ophyd_async.core import (
     DEFAULT_TIMEOUT,
     soft_signal_rw,
     AsyncStatus,
-    HintedSignal,
-    ConfigSignal,
     SignalRW,
     WatchableAsyncStatus,
     SignalX,
     wait_for_value,
     StandardReadableFormat as Format,
+)
+
+from ophyd_async.tango.core import (
+    TangoPolling
 )
 
 from tango import DeviceProxy, DevState
@@ -21,7 +25,7 @@ from .fsec_readable_device import FSECReadableDevice
 
 
 class Undulator(FSECReadableDevice, Movable, Stoppable):
-    Position: SignalRW[float]
+    Position: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1, 0.1)]
     StopMove: SignalX
 
     def __init__(
@@ -32,12 +36,10 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
             offset: float = 0.0,
     ) -> None:
         super().__init__(trl, device_proxy, name)
-        self.add_readables([self.Position], Format.HINTED_SIGNAL)
         with self.add_children_as_readables(Format.CONFIG_SIGNAL):
             self.Offset = soft_signal_rw(float, initial_value=offset)
         self._set_success = True
-
-    # --------------------------------------------------------------------
+        
 
     @WatchableAsyncStatus.wrap
     async def set(
@@ -51,8 +53,7 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
 
         move_status = AsyncStatus(wait_for_value(self.State, DevState.ON, timeout=timeout))
         return move_status
-
-    # --------------------------------------------------------------------
+    
 
     def stop(self, success: bool = True) -> AsyncStatus:
         self._set_success = success

@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 from typing import TypeVar
+from typing import Annotated as A
 
 from ophyd_async.core import (
     SignalR,
 )
-from ophyd_async.tango import (
+from ophyd_async.tango.core import (
     TangoReadable,
-    tango_polling
+    TangoPolling
 )
 from tango import DevState
 
 FSECDeviceConfig = TypeVar("FSECDeviceConfig")
 
 
-@tango_polling((0.1, 0.1, 0.1))
 class FSECReadableDevice(TangoReadable):
-    State: SignalR[DevState]
+    State: A[SignalR[DevState], TangoPolling(0.1)]
