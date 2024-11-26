@@ -4,7 +4,7 @@ from typing import Annotated as A
 
 import asyncio
 
-from bluesky.protocols import Movable, Stoppable
+from bluesky.protocols import Movable, Stoppable, SyncOrAsync
 
 from ophyd_async.core import (
     WatchableAsyncStatus,
@@ -80,6 +80,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
         if not self._set_success:
             raise RuntimeError("Motor was stopped")
 
-    def stop(self, success: bool = False) -> AsyncStatus:
+
+    def stop(self, success: bool = False) -> SyncOrAsync:
         self._set_success = success
         return self.StopMove.trigger()

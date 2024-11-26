@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated as A
 
-from bluesky.protocols import Stoppable
+from bluesky.protocols import Stoppable, SyncOrAsync
 
 from ophyd_async.core import (
     AsyncStatus,
@@ -24,7 +24,6 @@ class VmMotor(FSECReadableDevice, Stoppable):
     async def set(self, new_position: float, timeout: float = DEFAULT_TIMEOUT):
         await self.Position.set(new_position, wait=True, timeout=timeout)
 
-    @AsyncStatus.wrap
-    async def stop(self, success=True) -> None:
+    def stop(self, success=True) -> SyncOrAsync:
         self._set_success = success
-        await self.StopMove.trigger(wait=True)
+        return self.StopMove.trigger(wait=True)
