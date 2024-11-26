@@ -26,7 +26,7 @@ from .fsec_readable_device import FSECReadableDevice
 
 class Eurotherm3216(FSECReadableDevice, Movable, Stoppable):
     Temperature: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
-    Setpoint: SignalRW[float]
+    Setpoint: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     WorkingSetpoint: SignalRW[float]
     SetpointRamp: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SetpointDwell: A[SignalRW[float], Format.CONFIG_SIGNAL]
