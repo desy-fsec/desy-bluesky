@@ -25,9 +25,35 @@ from tango import DeviceProxy
 from .fsec_readable_device import FSECReadableDevice
 
 class Eurotherm3216(FSECReadableDevice, Movable, Stoppable):
+    """
+    Eurotherm 3216 temperature controller
+
+    Attributes
+    ----------
+    Temperature : SignalRW[float]
+        The current temperature (deg C)
+    Setpoint : SignalRW[float]
+        The setpoint temperature (deg C)
+    SetpointRamp : SignalRW[float]
+        The setpoint ramp rate (deg C/min)
+    SetpointDwell : SignalRW[float]
+        The setpoint dwell time (min)
+    SetpointMin : SignalRW[float]
+        The minimum setpoint temperature (deg C)
+    SetpointMax : SignalRW[float]
+        The maximum setpoint temperature (deg C)
+    PowerMin : SignalRW[float]
+        The minimum power
+    PowerMax : SignalRW[float]
+        The maximum power
+    CurrentPIDSet : SignalRW[float]
+        The current PID setting
+    setpoint_tolerance : SignalRW[float]
+        The tolerance for setting the setpoint (deg C). Default is 2.0 deg C
+        Setpoint is considered set when the temperature is within this tolerance.
+    """
     Temperature: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
     Setpoint: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
-    WorkingSetpoint: SignalRW[float]
     SetpointRamp: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SetpointDwell: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SetpointMin: A[SignalRW[float], Format.CONFIG_SIGNAL]
@@ -44,7 +70,8 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable):
     ) -> None:
         super().__init__(trl=trl, device_proxy=device_proxy, name=name)
         self._set_success = False
-        self.setpoint_tolerance = soft_signal_rw(float, 2.0, "tolerance", "C")
+        self.setpoint_tolerance = soft_signal_rw(float, 2.0, "setpoint_tolerance", "C")
+        self.add_readables([self.setpoint_tolerance], Format.CONFIG_SIGNAL)
 
     @WatchableAsyncStatus.wrap
     async def set(self, value: float, timeout=None):
