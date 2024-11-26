@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from typing import Annotated as A
 
-from dataclasses import dataclass
+import numpy as np
 
-from bluesky.protocols import Movable, Stoppable
-
-from ophyd_async.core import observe_value
+from bluesky.protocols import Movable, Stoppable, SyncOrAsync
 
 from ophyd_async.core import (
     WatchableAsyncStatus,
@@ -14,11 +12,15 @@ from ophyd_async.core import (
     SignalRW,
     set_and_wait_for_other_value,
     StandardReadableFormat as Format,
-    WatcherUpdate
+    WatcherUpdate,
+    soft_signal_rw,
+    observe_value
 )
 from ophyd_async.tango.core import (
     TangoPolling,
 )
+
+from tango import DeviceProxy
 
 from .fsec_readable_device import FSECReadableDevice
 
@@ -34,12 +36,24 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable):
     PowerMax: A[SignalRW[float], Format.CONFIG_SIGNAL]
     CurrentPIDSet: A[SignalRW[float], Format.CONFIG_SIGNAL]
 
+    def __init__(
+            self,
+            trl: str | None = None,
+            device_proxy: DeviceProxy | None = None,
+            name: str = "",
+    ) -> None:
+        super().__init__(trl=trl, device_proxy=device_proxy, name=name)
+        self._set_success = False
+        self.setpoint_tolerance = soft_signal_rw(float, 2.0, "tolerance", "C")
+
     @WatchableAsyncStatus.wrap
     async def set(self, value: float, timeout=None):
         self._set_success = True
         old_temperature = await self.Temperature.get_value()
-        
-        move_status = AsyncStatus(set_and_wait_for_other_value(self.Setpoint, value, self.Temperature, value, timeout=timeout))
+        tol = await self.setpoint_tolerance.get_value()
+        move_status = AsyncStatus(set_and_wait_for_other_value(self.Setpoint, value, self.Temperature,
+                                                               lambda v: np.isclose(v, value, atol=tol),
+                                                               timeout=timeout))
 
         try:
             async for current_temperature in observe_value(
@@ -56,8 +70,11 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable):
         if not self._set_success:
             raise RuntimeError("Motor was stopped")
 
-    @AsyncStatus.wrap
-    async def stop(self, success: bool = False):
+    def stop(self, success: bool = False) -> SyncOrAsync:
         self._set_success = success
-        setp = await self.Setpoint.get_value()
-        await set_and_wait_for_other_value(self.Setpoint, setp, self.Temperature, setp)
+        async def _stop():
+            setp = await self.Setpoint.get_value()
+            tol = await self.setpoint_tolerance.get_value()
+            await set_and_wait_for_other_value(self.Setpoint, setp, self.Temperature,
+                                               lambda v: np.isclose(v, setp, atol=tol))
+        return _stop()
