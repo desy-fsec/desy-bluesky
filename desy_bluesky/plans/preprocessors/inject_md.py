@@ -8,6 +8,9 @@ class InjectMD:
     def set_metadata(self, meta):
         self.md = meta
 
+    def add_metadata(self, meta):
+        self.md.update(meta)
+
     def __call__(self, plan):
         @inject_md_decorator(self.md)
         def inner():
