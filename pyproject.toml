@@ -5,7 +5,7 @@ description = ""
 authors = ["Devin Burke"]
 license = "GNU GPL 3"
 packages = [
-    { include = "desy_bluesky" }
+    { include = "desy_bluesky"}
 ]
 
 [tool.poetry.dependencies]
