@@ -31,6 +31,7 @@ def continuous_scan(detectors,
     move_status = yield from bps.abs_set(motor, stop)
 
     while move_status.done is False:
+        yield from bps.checkpoint()
         yield from bps.create()
         yield from bps.read(motor)
         for det in detectors:
