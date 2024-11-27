@@ -36,6 +36,6 @@ def continuous_scan(detectors,
         for det in detectors:
             yield from bps.read(det)
         yield from bps.save()
-        yield from bps.sleep(1/sample_rate)
+        yield from bps.sleep(sample_rate)
 
     yield from bps.close_run()
