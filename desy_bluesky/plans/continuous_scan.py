@@ -1,10 +1,12 @@
 import bluesky.plan_stubs as bps
+from typing import List
+from bluesky.protocols import Readable, Movable
 
-def continuous_scan(detectors,
-                    motor,
-                    start,
-                    stop,
-                    sample_rate,
+def continuous_scan(detectors: List[Readable],
+                    motor: Movable,
+                    start: float,
+                    stop: float,
+                    sample_rate: float,
                     md=None):
 
     _md = {
