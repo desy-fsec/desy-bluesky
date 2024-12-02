@@ -4,7 +4,7 @@ from typing import Annotated as A
 
 import numpy as np
 
-from bluesky.protocols import Movable, Stoppable, SyncOrAsync
+from bluesky.protocols import Movable, Stoppable, SyncOrAsync, Subscribable
 
 from ophyd_async.core import (
     WatchableAsyncStatus,
@@ -24,7 +24,7 @@ from tango import DeviceProxy
 
 from .fsec_readable_device import FSECReadableDevice
 
-class Eurotherm3216(FSECReadableDevice, Movable, Stoppable):
+class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
     """
     Eurotherm 3216 temperature controller
 
@@ -105,3 +105,9 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable):
             await set_and_wait_for_other_value(self.Setpoint, setp, self.Temperature,
                                                lambda v: np.isclose(v, setp, atol=tol))
         return _stop()
+
+    def subscribe(self, cb):
+        return self.Temperature.subscribe(cb)
+
+    def clear_sub(self, sub):
+        self.Temperature.clear_sub(sub)
