@@ -5,7 +5,7 @@ from bluesky.protocols import Movable, Readable
 def ramp_and_dwell(positioner: Movable | Readable,
                    setpoint: float,
                    dwell_time: float = 0.0,
-                   sample_time: float = 0.1,
+                   sample_time: float = 1.0,
                    md: dict | None = None):
     """
     Ramp the positioner to the setpoint and dwell for the specified time.
