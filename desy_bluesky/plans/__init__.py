@@ -1,8 +1,7 @@
 from .preprocessors import InjectMD
 from .continuous_scan import continuous_scan
-from .stubs import ramp, dwell
+from .ramp_and_dwell import ramp_and_dwell
 
 _all__ = ['InjectMD',
           'continuous_scan',
-          'ramp',
-          'dwell']
+          'ramp_and_dwell']
