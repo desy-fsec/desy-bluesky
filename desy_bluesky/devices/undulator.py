@@ -40,7 +40,7 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
             self.Offset = soft_signal_rw(float, initial_value=offset)
         self._set_success = True
         
-
+    @AsyncStatus.wrap
     async def set(
         self,
         new_position: float,
