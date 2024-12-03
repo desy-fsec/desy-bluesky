@@ -41,7 +41,6 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
         self._set_success = True
         
 
-    @WatchableAsyncStatus.wrap
     async def set(
         self,
         new_position: float,
