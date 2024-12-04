@@ -28,7 +28,7 @@ from tango import DevState
 
 from .fsec_readable_device import FSECReadableDevice
 
-class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Subscribable):
+class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     Position: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     PositionEncoder: A[SignalR[float], Format.HINTED_UNCACHED_SIGNAL]
     SlewRate: A[SignalRW[float], Format.CONFIG_SIGNAL]
@@ -71,9 +71,3 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Subscribable):
     def stop(self, success: bool = False) -> SyncOrAsync:
         self._set_success = success
         return self.StopMove.trigger()
-
-    def subscribe(self, cb):
-        return self.Position.subscribe(cb)
-
-    def clear_sub(self, sub):
-        self.Position.clear_sub(sub)
