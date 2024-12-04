@@ -37,7 +37,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Subscribable):
     Acceleration: A[SignalRW[float], Format.CONFIG_SIGNAL]
     StopMove: SignalX
 
-    @WatchableAsyncStatus.wrap
+    @AsyncStatus.wrap
     async def set(
         self,
         value: float,
@@ -65,23 +65,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Subscribable):
 
         await self.Position.set(value, wait=False, timeout=timeout)
 
-        move_status = AsyncStatus(wait_for_value(self.State, DevState.ON, timeout=timeout))
-
-        try:
-            async for current_position in observe_value(
-                    self.Position, done_status=move_status
-            ):
-                yield WatcherUpdate(
-                    current=current_position,
-                    initial=old_position,
-                    target=value,
-                    name=self.name,
-                )
-        except RuntimeError as exc:
-            print(f"RuntimeError: {exc}")
-            raise
-        if not self._set_success:
-            raise RuntimeError("Motor was stopped")
+        await wait_for_value(self.State, DevState.ON, timeout=timeout)
 
 
     def stop(self, success: bool = False) -> SyncOrAsync:
