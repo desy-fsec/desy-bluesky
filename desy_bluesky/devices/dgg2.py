@@ -9,8 +9,12 @@ from ophyd_async.core import (
     AsyncStatus,
     SignalX,
     SignalRW,
+    SignalR,
     wait_for_value,
     StandardReadableFormat as Format,
+)
+from ophyd_async.tango.core import (
+    TangoPolling
 )
 from tango import DevState
 
@@ -21,6 +25,7 @@ class DGG2Timer(FSECReadableDevice, Triggerable, Stoppable):
     SampleTime: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     Stop: SignalX
     Start: SignalX
+    State: A[SignalR[DevState], Format.HINTED_SIGNAL, TangoPolling(0.01)]
 
     @AsyncStatus.wrap
     async def trigger(self) -> None:

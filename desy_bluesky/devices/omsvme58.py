@@ -29,7 +29,7 @@ from tango import DevState
 from .fsec_readable_device import FSECReadableDevice
 
 class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Subscribable):
-    Position: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1, 0.1)]
+    Position: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     PositionEncoder: A[SignalR[float], Format.HINTED_UNCACHED_SIGNAL]
     SlewRate: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SlewRateMax: A[SignalRW[float], Format.CONFIG_SIGNAL]
