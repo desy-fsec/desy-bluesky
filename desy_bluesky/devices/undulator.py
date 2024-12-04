@@ -9,6 +9,7 @@ from ophyd_async.core import (
     soft_signal_rw,
     AsyncStatus,
     SignalRW,
+    SignalR,
     WatchableAsyncStatus,
     SignalX,
     wait_for_value,
@@ -26,6 +27,11 @@ from .fsec_readable_device import FSECReadableDevice
 
 class Undulator(FSECReadableDevice, Movable, Stoppable):
     Position: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1, 0.1)]
+    PositionSim: A[SignalRW[float], Format.UNCACHED_SIGNAL]
+    Velocity: A[SignalRW[float], Format.UNCACHED_SIGNAL]
+    HarmonicSim: A[SignalRW[int], Format.UNCACHED_SIGNAL]
+    ResultSim: A[SignalR[str], Format.UNCACHED_SIGNAL]
+    Gap: A[SignalRW[float], Format.UNCACHED_SIGNAL]
     StopMove: SignalX
 
     def __init__(

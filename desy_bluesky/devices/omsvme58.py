@@ -11,6 +11,7 @@ from ophyd_async.core import (
     AsyncStatus,
     SignalRW,
     SignalX,
+    SignalR,
     wait_for_value,
     observe_value,
     DEFAULT_TIMEOUT,
@@ -29,7 +30,9 @@ from .fsec_readable_device import FSECReadableDevice
 
 class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable, Subscribable):
     Position: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1, 0.1)]
+    PositionEncoder: A[SignalR[float], Format.HINTED_UNCACHED_SIGNAL]
     SlewRate: A[SignalRW[float], Format.CONFIG_SIGNAL]
+    SlewRateMax: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Conversion: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Acceleration: A[SignalRW[float], Format.CONFIG_SIGNAL]
     StopMove: SignalX
