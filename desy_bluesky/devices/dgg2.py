@@ -25,7 +25,7 @@ class DGG2Timer(FSECReadableDevice, Triggerable, Stoppable):
     SampleTime: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     Stop: SignalX
     Start: SignalX
-    State: A[SignalR[DevState], Format.HINTED_SIGNAL, TangoPolling(0.01)]
+    State: A[SignalR[DevState], TangoPolling(0.01)]
 
     @AsyncStatus.wrap
     async def trigger(self) -> None:
