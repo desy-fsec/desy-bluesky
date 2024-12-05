@@ -30,7 +30,7 @@ from .fsec_readable_device import FSECReadableDevice
 
 class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     Position: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
-    PositionEncoder: A[SignalR[float], Format.HINTED_UNCACHED_SIGNAL]
+    PositionEncoder: A[SignalR[float], Format.UNCACHED_SIGNAL]
     SlewRate: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SlewRateMax: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Conversion: A[SignalRW[float], Format.CONFIG_SIGNAL]
