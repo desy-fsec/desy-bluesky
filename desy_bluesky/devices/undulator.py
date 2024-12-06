@@ -26,7 +26,7 @@ from .fsec_readable_device import FSECReadableDevice
 
 
 class Undulator(FSECReadableDevice, Movable, Stoppable):
-    Position: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1, 0.1)]
+    Position: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     PositionSim: A[SignalRW[float], Format.UNCACHED_SIGNAL]
     Velocity: A[SignalRW[float], Format.UNCACHED_SIGNAL]
     HarmonicSim: A[SignalRW[int], Format.UNCACHED_SIGNAL]
