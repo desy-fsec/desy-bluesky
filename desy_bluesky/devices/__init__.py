@@ -10,6 +10,7 @@ from .pilc import PiLC
 from .gated_array import GatedArray
 from .fsec_readable_device import FSECReadableDevice
 from .qserver import QserverDevice
+from .eurotherm3216 import Eurotherm3216
 
 __all__ = [
     "DGG2Timer",
@@ -24,4 +25,5 @@ __all__ = [
     "GatedArray",
     "FSECReadableDevice",
     "QserverDevice",
+    "Eurotherm3216",
 ]
