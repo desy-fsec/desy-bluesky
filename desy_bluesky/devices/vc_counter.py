@@ -4,7 +4,7 @@ from typing import Annotated as A
 
 from ophyd_async.core import (
     soft_signal_rw,
-    SignalR,
+    SignalRW,
     SignalX,
     StandardReadableFormat as Format,
 )
@@ -14,7 +14,7 @@ from tango import DeviceProxy
 
 
 class VcCounter(FSECReadableDevice):
-    Counts: A[SignalR[int], Format.HINTED_UNCACHED_SIGNAL]
+    Counts: A[SignalRW[int], Format.HINTED_UNCACHED_SIGNAL]
     Reset: SignalX
 
     def __init__(
