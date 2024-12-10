@@ -16,7 +16,7 @@ from .fsec_readable_device import FSECReadableDevice
 
 
 class VmMotor(FSECReadableDevice, Stoppable):
-    Position: A[SignalRW[float], Format.HINTED_SIGNAL]
+    Position: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     StopMove: SignalX
     
 
