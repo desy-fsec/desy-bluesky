@@ -8,6 +8,7 @@ from ophyd_async.core import (
     DeviceVector,
     StandardReadableFormat as Format,
 )
+from ophyd_async.tango.core import TangoDevice
 
 from bluesky.protocols import (
     Triggerable,
@@ -21,11 +22,11 @@ class GatedArray(StandardReadable, Triggerable):
 
     def __init__(self,
                  gate: DGG2Timer | str,
-                 counters: List[SIS3820Counter | str],
+                 counters: List[StandardReadable | str],
                  name: str = "") -> None:
 
         with self.add_children_as_readables():
-            if all(isinstance(counter, SIS3820Counter) for counter in counters):
+            if all(isinstance(counter, StandardReadable) for counter in counters):
                 self.counters = DeviceVector(
                     {i: counter for i, counter in enumerate(counters)}
                 )
