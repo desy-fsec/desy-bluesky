@@ -49,7 +49,10 @@ class GatedArray(StandardReadable, Triggerable):
         self.add_readables([self.reset_on_trigger], Format.CONFIG_SIGNAL)
 
         super().__init__(name=name)
-    
+                     
+    def __repr__(self):
+        return self.name
+        
     @AsyncStatus.wrap
     async def trigger(self) -> None:
         tasks = []
