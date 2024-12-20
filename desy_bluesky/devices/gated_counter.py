@@ -42,6 +42,9 @@ class GatedCounter(StandardReadable, Triggerable):
 
         super().__init__(name=name)
 
+    def __repr__(self):
+        return self.name
+
     @AsyncStatus.wrap
     async def trigger(self) -> None:
         if await self.reset_on_trigger.get_value():
