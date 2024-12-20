@@ -17,3 +17,6 @@ FSECDeviceConfig = TypeVar("FSECDeviceConfig")
 
 class FSECReadableDevice(TangoReadable):
     State: A[SignalR[DevState], TangoPolling(0.1)]
+
+    def __repr__(self):
+        return self.name
