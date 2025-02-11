@@ -30,6 +30,7 @@ def load_configuration(config: Dict[str, Any] | str,
         with open(config, 'r') as f:
             try:
                 configuration = yaml.safe_load(f)
+                configuration = configuration.get('device_configurations', configuration)
             except yaml.YAMLError as e:
                 raise ValueError(f"Error loading configuration file {config}. {e}")
     else:
