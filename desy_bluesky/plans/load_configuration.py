@@ -2,7 +2,7 @@ import yaml
 from typing import Dict, Any
 
 from bluesky.plan_stubs import abs_set, wait
-from ophyd_async.core import DEFAULT_TIMEOUT, Device
+from ophyd_async.core import DEFAULT_TIMEOUT
 
 def load_configuration(config: Dict[str, Any] | str,
                        devices: Dict[str, Any],
@@ -55,11 +55,3 @@ def load_configuration(config: Dict[str, Any] | str,
             yield from wait(group=group, timeout=timeout)
         except TimeoutError:
             raise TimeoutError(f"Timeout waiting for group {group}.")
-
-def save_configuration(devices: Dict[str, Device],
-                       path: str):
-    config = {}
-    for device_name, device in devices.items():
-        config[device_name] = {}
-        for field_name, field in device.read_configuration().items():
-            config[device_name][field_name] = field['value']
