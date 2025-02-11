@@ -1,6 +1,6 @@
 from abc import abstractmethod
-from typing import Optional
-from ophyd_async.core import SignalR, SignalRW, Device, DeviceVector, T
+from typing import Optional, TypeVar
+from ophyd_async.core import SignalR, SignalRW, Device, DeviceVector
 from ophyd_async.tango.core import (
     TangoReadable,
     tango_signal_rw,
@@ -8,6 +8,7 @@ from ophyd_async.tango.core import (
 )
 from bluesky.protocols import Readable, Stoppable, Movable
 
+T = TypeVar("T")
 
 class PiLCPort(Readable, Device):
     """An abstract class defining what all PiLC modules have in common in tango
