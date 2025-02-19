@@ -9,6 +9,7 @@ from bluesky.protocols import Movable, Stoppable, SyncOrAsync
 from ophyd_async.core import (
     AsyncStatus,
     SignalRW,
+    SignalR,
     SignalX,
     wait_for_value,
     DEFAULT_TIMEOUT,
