@@ -13,9 +13,7 @@ from ophyd_async.core import (
     wait_for_value,
     StandardReadableFormat as Format,
 )
-from ophyd_async.tango.core import (
-    TangoPolling
-)
+from ophyd_async.tango.core import TangoPolling
 from tango import DevState
 
 from .fsec_readable_device import FSECReadableDevice

@@ -14,7 +14,7 @@ from ophyd_async.core import (
     StandardReadableFormat as Format,
     WatcherUpdate,
     soft_signal_rw,
-    observe_value
+    observe_value,
 )
 from ophyd_async.tango.core import (
     TangoPolling,
@@ -23,6 +23,7 @@ from ophyd_async.tango.core import (
 from tango import DeviceProxy
 
 from .fsec_readable_device import FSECReadableDevice
+
 
 class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
     """
@@ -52,6 +53,7 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
         The tolerance for setting the setpoint (deg C). Default is 2.0 deg C
         Setpoint is considered set when the temperature is within this tolerance.
     """
+
     Temperature: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
     Setpoint: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     SetpointRamp: A[SignalRW[float], Format.CONFIG_SIGNAL]
@@ -63,10 +65,10 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
     CurrentPIDSet: A[SignalRW[float], Format.CONFIG_SIGNAL]
 
     def __init__(
-            self,
-            trl: str | None = None,
-            device_proxy: DeviceProxy | None = None,
-            name: str = "",
+        self,
+        trl: str | None = None,
+        device_proxy: DeviceProxy | None = None,
+        name: str = "",
     ) -> None:
         super().__init__(trl=trl, device_proxy=device_proxy, name=name)
         self._set_success = False
@@ -78,9 +80,15 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
         self._set_success = True
         old_temperature = await self.Temperature.get_value()
         tol = await self.setpoint_tolerance.get_value()
-        move_status = AsyncStatus(set_and_wait_for_other_value(self.Setpoint, value, self.Temperature,
-                                                               lambda v: np.isclose(v, value, atol=tol),
-                                                               timeout=timeout))
+        move_status = AsyncStatus(
+            set_and_wait_for_other_value(
+                self.Setpoint,
+                value,
+                self.Temperature,
+                lambda v: np.isclose(v, value, atol=tol),
+                timeout=timeout,
+            )
+        )
 
         try:
             async for current_temperature in observe_value(
@@ -99,11 +107,17 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
 
     def stop(self, success: bool = False) -> SyncOrAsync:
         self._set_success = success
+
         async def _stop():
             setp = await self.Setpoint.get_value()
             tol = await self.setpoint_tolerance.get_value()
-            await set_and_wait_for_other_value(self.Setpoint, setp, self.Temperature,
-                                               lambda v: np.isclose(v, setp, atol=tol))
+            await set_and_wait_for_other_value(
+                self.Setpoint,
+                setp,
+                self.Temperature,
+                lambda v: np.isclose(v, setp, atol=tol),
+            )
+
         return _stop()
 
     def subscribe(self, cb):

@@ -15,10 +15,9 @@ from .sis3820 import SIS3820Counter
 
 class GatedCounter(StandardReadable, Triggerable):
 
-    def __init__(self,
-                 gate: DGG2Timer | str,
-                 counter: SIS3820Counter | str,
-                 name: str = "") -> None:
+    def __init__(
+        self, gate: DGG2Timer | str, counter: SIS3820Counter | str, name: str = ""
+    ) -> None:
 
         with self.add_children_as_readables():
             if isinstance(counter, SIS3820Counter):
@@ -35,9 +34,9 @@ class GatedCounter(StandardReadable, Triggerable):
             else:
                 raise ValueError("gate must be a DGG2Timer or a string")
 
-        self.reset_on_trigger = soft_signal_rw(datatype=bool,
-                                               name="reset_on_trigger",
-                                               initial_value=True)
+        self.reset_on_trigger = soft_signal_rw(
+            datatype=bool, name="reset_on_trigger", initial_value=True
+        )
         self.add_readables([self.reset_on_trigger], Format.CONFIG_SIGNAL)
 
         super().__init__(name=name)

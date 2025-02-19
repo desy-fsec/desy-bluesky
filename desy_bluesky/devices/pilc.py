@@ -1,14 +1,11 @@
 from abc import abstractmethod
 from typing import Optional, TypeVar
 from ophyd_async.core import SignalR, SignalRW, Device, DeviceVector
-from ophyd_async.tango.core import (
-    TangoReadable,
-    tango_signal_rw,
-    tango_signal_r
-)
+from ophyd_async.tango.core import TangoReadable, tango_signal_rw, tango_signal_r
 from bluesky.protocols import Readable, Stoppable, Movable
 
 T = TypeVar("T")
+
 
 class PiLCPort(Readable, Device):
     """An abstract class defining what all PiLC modules have in common in tango
@@ -30,8 +27,7 @@ class PiLCPort(Readable, Device):
     type: str = None
 
     @abstractmethod
-    def __init__(self):
-        ...
+    def __init__(self): ...
 
     @abstractmethod
     async def read(self):
@@ -112,7 +108,7 @@ class PiLCIO(PiLCPort):
     counter_value:
         A readonly signal for reading the value of the counter
         (triggered on rising edge when enabled).
-    
+
     See PiLCPort for more info on the "type" and "port_name" members
     """
 
@@ -205,6 +201,7 @@ class PiLCIO(PiLCPort):
         new = await self.read_configuration()
         return (old, new)
 
+
 class PiLCReadable(PiLCPort):
     """
     A class for a PiLCPort that is read only
@@ -247,7 +244,7 @@ class PiLCMovable(PiLCReadable, Movable, Stoppable):
 class PiLC(TangoReadable):
     """
     Class Defining a TangoReadableDevice for the PiLC with configurable output cards
-    
+
     Members:
     --------
     ports:
@@ -261,7 +258,7 @@ class PiLC(TangoReadable):
         The tango address of the PiLC (created in __init__)
     readablemodules, movablemodules, portconfig:
         See PiLC.__init__'s docstring (created in __init__)
-    
+
     Ports also can also be accessed with the same name as in tango but lowercase,
     after connecting to tango via the connect function
     example: /IO_DIR_2 -> pilc.io_dir_2
@@ -408,7 +405,7 @@ class PiLC(TangoReadable):
 
         def has_port(port_type: list, num: int, port_list: list, check: str = ""):
             """returns the type name of the port found, if none was found, return
-             false"""
+            false"""
             for port_name in port_type:
                 if f"{port_name}_{check}{num}" in port_list:
                     return port_name
@@ -416,7 +413,7 @@ class PiLC(TangoReadable):
 
         def create_readable(prefix: str, num: int):
             """create a readable port where the tango trl is in the style of
-             {prefix}_{num}"""
+            {prefix}_{num}"""
             mod = PiLCReadable()
             mod.value = self._register_signal_r(float, prefix, num)
             self.ports[num] = mod
@@ -497,7 +494,9 @@ class PiLC(TangoReadable):
                     print(f"unknown module: '{self.port_config[key]}'")
                 # add name for module if it exists
                 if key in self.ports and hasattr(self.ports[key], "name"):
-                    self.ports[key].port_name = self._register_signal_rw(str, "Name", key)
+                    self.ports[key].port_name = self._register_signal_rw(
+                        str, "Name", key
+                    )
                     self._movable.append(self.ports[key].port_name)
         else:
             for i in range(1, 17):
@@ -521,7 +520,7 @@ class PiLC(TangoReadable):
         self.set_readable_signals(read=self._readable, config=self._movable)
         self.set_name(self.name)
 
-    def __getitem__(self, name:str):
+    def __getitem__(self, name: str):
         """function to make aliases work with the [] syntax"""
         return self.ports[self.aliases[name]]
 

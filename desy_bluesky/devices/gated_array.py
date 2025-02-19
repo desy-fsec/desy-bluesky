@@ -8,7 +8,6 @@ from ophyd_async.core import (
     DeviceVector,
     StandardReadableFormat as Format,
 )
-from ophyd_async.tango.core import TangoDevice
 
 from bluesky.protocols import (
     Triggerable,
@@ -20,10 +19,12 @@ from .sis3820 import SIS3820Counter
 
 class GatedArray(StandardReadable, Triggerable):
 
-    def __init__(self,
-                 gate: DGG2Timer | str,
-                 counters: List[StandardReadable | str],
-                 name: str = "") -> None:
+    def __init__(
+        self,
+        gate: DGG2Timer | str,
+        counters: List[StandardReadable | str],
+        name: str = "",
+    ) -> None:
 
         with self.add_children_as_readables():
             if all(isinstance(counter, StandardReadable) for counter in counters):
@@ -35,24 +36,25 @@ class GatedArray(StandardReadable, Triggerable):
                     {i: SIS3820Counter(trl) for i, trl in enumerate(counters)}
                 )
             else:
-                raise ValueError("counters must be a list of SIS3820Counter or"
-                                 " a list of TRLs.")
+                raise ValueError(
+                    "counters must be a list of SIS3820Counter or" " a list of TRLs."
+                )
 
             if isinstance(gate, str):
                 self.gate = DGG2Timer(gate)
             elif isinstance(gate, DGG2Timer):
                 self.gate = gate
 
-        self.reset_on_trigger = soft_signal_rw(datatype=bool,
-                                               name="reset_on_trigger",
-                                               initial_value=True)
+        self.reset_on_trigger = soft_signal_rw(
+            datatype=bool, name="reset_on_trigger", initial_value=True
+        )
         self.add_readables([self.reset_on_trigger], Format.CONFIG_SIGNAL)
 
         super().__init__(name=name)
-                     
+
     def __repr__(self):
         return self.name
-        
+
     @AsyncStatus.wrap
     async def trigger(self) -> None:
         tasks = []

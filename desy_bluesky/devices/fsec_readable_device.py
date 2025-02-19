@@ -6,10 +6,7 @@ from typing import Annotated as A
 from ophyd_async.core import (
     SignalR,
 )
-from ophyd_async.tango.core import (
-    TangoReadable,
-    TangoPolling
-)
+from ophyd_async.tango.core import TangoReadable, TangoPolling
 from tango import DevState
 
 FSECDeviceConfig = TypeVar("FSECDeviceConfig")

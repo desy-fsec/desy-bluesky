@@ -1,3 +1,3 @@
 from .databroker_cb import RunAddedCallback
 
-__all__ = ['RunAddedCallback']
+__all__ = ["RunAddedCallback"]

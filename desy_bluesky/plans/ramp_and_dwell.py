@@ -2,11 +2,14 @@ import bluesky.plan_stubs as bps
 import time
 from bluesky.protocols import Movable, Readable
 
-def ramp_and_dwell(positioner: Movable | Readable,
-                   setpoint: float,
-                   dwell_time: float = 0.0,
-                   sample_time: float = 1.0,
-                   md: dict | None = None):
+
+def ramp_and_dwell(
+    positioner: Movable | Readable,
+    setpoint: float,
+    dwell_time: float = 0.0,
+    sample_time: float = 1.0,
+    md: dict | None = None,
+):
     """
     Ramp the positioner to the setpoint and dwell for the specified time.
 
@@ -25,18 +28,18 @@ def ramp_and_dwell(positioner: Movable | Readable,
     """
     md = md or {}
     _md = {
-        'plan_name': 'ramp_and_dwell',
-        'detectors': [],
-        'motors': [positioner.name],
-        'plan_args': {
-            'detectors': [],
-            'device': positioner.name,
-            'setpoint': setpoint,
-            'dwell_time': dwell_time,
+        "plan_name": "ramp_and_dwell",
+        "detectors": [],
+        "motors": [positioner.name],
+        "plan_args": {
+            "detectors": [],
+            "device": positioner.name,
+            "setpoint": setpoint,
+            "dwell_time": dwell_time,
         },
-        'plan_pattern': '',
-        'plan_pattern_module': '',
-        'plan_pattern_args': {},
+        "plan_pattern": "",
+        "plan_pattern_module": "",
+        "plan_pattern_args": {},
     }
 
     _md.update(md)
@@ -61,4 +64,3 @@ def ramp_and_dwell(positioner: Movable | Readable,
             time.sleep(sample_time)
 
     yield from bps.close_run()
-

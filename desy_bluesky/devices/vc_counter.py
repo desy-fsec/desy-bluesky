@@ -18,10 +18,10 @@ class VcCounter(FSECReadableDevice):
     Reset: SignalX
 
     def __init__(
-            self,
-            trl: str | None = None,
-            device_proxy: DeviceProxy | None = None,
-            name: str = "",
+        self,
+        trl: str | None = None,
+        device_proxy: DeviceProxy | None = None,
+        name: str = "",
     ) -> None:
         super().__init__(trl, device_proxy, name)
         # Not used, I added it here because SIS3820 has it

@@ -1,0 +1,34 @@
+# Description: This file contains the user defined sequences.
+#
+#    - plan_name1:
+#        arguments:
+#          - arg1
+#          - arg2
+#        keywords:
+#          kwarg1: 0
+#          kwarg2: 0
+#        metadata:
+#          key1: value1
+#          key2: value2
+#    - plan_name2:
+#        ...
+
+- scan:
+    arguments:
+      - [detectors]
+      - motor
+      - 0
+      - 1
+      - 4
+    metadata:
+      sequence: sequence1 part 1
+
+- scan:
+    arguments:
+      - [detectors]
+      - motor
+      - -1
+      - 0
+      - 4
+    metadata:
+        sequence: sequence1 part 2
