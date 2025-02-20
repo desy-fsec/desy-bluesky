@@ -30,9 +30,9 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     Conversion: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Acceleration: A[SignalRW[float], Format.CONFIG_SIGNAL]
     StopMove: SignalX
-    # StepPositionController: A[SignalRW[float], Format.CHILD]
-    # PositionEncoder: A[SignalR[float], Format.CHILD]
-    # PositionEncoderRaw: A[SignalR[float], Format.CHILD]
+    StepPositionController: SignalRW[float]
+    PositionEncoder: SignalR[float]
+    PositionEncoderRaw: SignalR[float]
 
     @AsyncStatus.wrap
     async def set(
