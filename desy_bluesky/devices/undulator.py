@@ -33,14 +33,13 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
     def __init__(
         self,
         trl: str | None = None,
-        device_proxy: DeviceProxy | None = None,
         name: str = "",
         offset: float = 0.0,
     ) -> None:
-        super().__init__(trl, device_proxy, name)
+        self._set_success = True
         with self.add_children_as_readables(Format.CONFIG_SIGNAL):
             self.Offset = soft_signal_rw(float, initial_value=offset)
-        self._set_success = True
+        super().__init__(trl, name)        
 
     @AsyncStatus.wrap
     async def set(

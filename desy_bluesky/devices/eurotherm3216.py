@@ -67,10 +67,9 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
     def __init__(
         self,
         trl: str | None = None,
-        device_proxy: DeviceProxy | None = None,
         name: str = "",
     ) -> None:
-        super().__init__(trl=trl, device_proxy=device_proxy, name=name)
+        super().__init__(trl=trl, name=name)
         self._set_success = False
         self.setpoint_tolerance = soft_signal_rw(float, 2.0, "setpoint_tolerance", "C")
         self.add_readables([self.setpoint_tolerance], Format.CONFIG_SIGNAL)

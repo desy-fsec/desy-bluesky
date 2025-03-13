@@ -13,8 +13,8 @@ from .fsec_readable_device import FSECReadableDevice
 
 # --------------------------------------------------------------------
 class SIS3820Counter(FSECReadableDevice):
-    Counts: A[SignalRW[int], Format.HINTED_UNCACHED_SIGNAL]
-    Offset: A[SignalRW[int], Format.CONFIG_SIGNAL]
+    Counts: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
+    Offset: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Reset: SignalX
 
     async def reset(self):
