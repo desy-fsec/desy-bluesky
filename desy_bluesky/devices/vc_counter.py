@@ -10,7 +10,6 @@ from ophyd_async.core import (
 )
 
 from .fsec_readable_device import FSECReadableDevice
-from tango import DeviceProxy
 
 
 class VcCounter(FSECReadableDevice):
@@ -20,7 +19,6 @@ class VcCounter(FSECReadableDevice):
     def __init__(
         self,
         trl: str | None = None,
-        device_proxy: DeviceProxy | None = None,
         name: str = "",
     ) -> None:
         # Not used, I added it here because SIS3820 has it
