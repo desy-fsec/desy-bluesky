@@ -66,7 +66,7 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
 
     def __init__(
         self,
-        trl: str | None = None,
+        trl: str,
         name: str = "",
     ) -> None:
         super().__init__(trl=trl, name=name)

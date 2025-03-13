@@ -18,7 +18,7 @@ class VcCounter(FSECReadableDevice):
 
     def __init__(
         self,
-        trl: str | None = None,
+        trl: str,
         name: str = "",
     ) -> None:
         # Not used, I added it here because SIS3820 has it

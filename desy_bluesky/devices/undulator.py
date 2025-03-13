@@ -34,7 +34,7 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
 
     def __init__(
         self,
-        trl: str | None = None,
+        trl: str,
         name: str = "",
         offset: float = 0.0,
     ) -> None:

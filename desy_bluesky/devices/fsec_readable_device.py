@@ -16,7 +16,7 @@ class FSECReadableDevice(TangoReadable):
     State: A[SignalR[DevState], TangoPolling(0.1)]
     
     def __init__(self,
-                 trl: str | None = None,
+                 trl: str,
                  name: str = "",
                  auto_fill_signals: bool = True) -> None:
         TangoReadable.__init__(self, trl, name=name, auto_fill_signals=auto_fill_signals)
