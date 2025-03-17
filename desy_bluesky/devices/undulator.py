@@ -47,13 +47,13 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
     @AsyncStatus.wrap
     async def set(
         self,
-        new_position: float,
-        timeout: float = DEFAULT_TIMEOUT,
+        value: float,
+        timeout: float | None = None,
     ):
         self._set_success = True
 
-        await self.Position.set(new_position, timeout=timeout)
-        await wait_for_value(self.State, DevState.ON, timeout=timeout)
+        await self.Position.set(value, timeout=timeout)
+        await wait_for_value(self.State, "ON", timeout=timeout)
 
     def stop(self, success: bool = True) -> AsyncStatus:
         self._set_success = success
