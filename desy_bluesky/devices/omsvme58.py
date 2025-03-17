@@ -16,6 +16,7 @@ from ophyd_async.core import (
     CalculatableTimeout,
     CALCULATE_TIMEOUT,
     StandardReadableFormat as Format,
+    Ignore
 )
 
 from tango import DevState
@@ -30,9 +31,6 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     Conversion: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Acceleration: A[SignalRW[int], Format.CONFIG_SIGNAL]
     StopMove: SignalX
-    StepPositionController: SignalRW[int]
-    PositionEncoder: SignalR[float]
-    PositionEncoderRaw: SignalR[float]
 
     @AsyncStatus.wrap
     async def set(
@@ -67,3 +65,11 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     def stop(self, success: bool = False) -> SyncOrAsync:
         self._set_success = success
         return self.StopMove.trigger()
+
+class OmsVME58MotorNoEncoder(OmsVME58Motor):
+    PositionEncoder: Ignore
+    PositionEncoderRaw: Ignore
+
+class OmsVME58MotorEncoder(OmsVME58Motor):
+    PositionEncoder: A[SignalR[float], Format.UNCACHED_SIGNAL]
+    PositionEncoderRaw: A[SignalR[float], Format.UNCACHED_SIGNAL]

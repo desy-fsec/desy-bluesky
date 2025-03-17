@@ -11,6 +11,7 @@ from ophyd_async.core import (
     soft_signal_rw,
     AsyncStatus,
     SignalRW,
+    SignalR,
     SignalX,
     wait_for_value,
     StandardReadableFormat as Format,
@@ -28,7 +29,7 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
     PositionSim: A[SignalRW[float], Format.UNCACHED_SIGNAL]
     Velocity: A[SignalRW[float], Format.UNCACHED_SIGNAL]
     HarmonicSim: A[SignalRW[int], Format.UNCACHED_SIGNAL]
-    ResultSim: A[Array1D[np.str_], Format.UNCACHED_SIGNAL]
+    ResultSim: A[SignalR[Array1D[np.str_]], Format.UNCACHED_SIGNAL]
     Gap: A[SignalRW[float], Format.UNCACHED_SIGNAL]
     StopMove: SignalX
 
