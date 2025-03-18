@@ -19,6 +19,8 @@ from tango import DevState
 from .fsec_readable_device import FSECReadableDevice
 import asyncio
 
+# TODO: SAWFT only works for SampleTime < 3.0 seconds. Solve this.
+
 
 class DGG2Timer(FSECReadableDevice, Triggerable, Stoppable):
     SampleTime: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]

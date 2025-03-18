@@ -26,10 +26,10 @@ from .fsec_readable_device import FSECReadableDevice
 
 class Undulator(FSECReadableDevice, Movable, Stoppable):
     Position: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
-    PositionSim: A[SignalRW[float], Format.UNCACHED_SIGNAL]
-    Velocity: A[SignalRW[float], Format.UNCACHED_SIGNAL]
-    HarmonicSim: A[SignalRW[int], Format.UNCACHED_SIGNAL]
-    ResultSim: A[SignalR[Array1D[np.str_]], Format.UNCACHED_SIGNAL]
+    PositionSim: SignalRW[float]
+    Velocity: SignalRW[float]
+    HarmonicSim: SignalRW[int]
+    ResultSim: SignalR[Array1D[np.str_]]
     Gap: A[SignalRW[float], Format.UNCACHED_SIGNAL]
     StopMove: SignalX
 
