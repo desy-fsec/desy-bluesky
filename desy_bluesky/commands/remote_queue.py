@@ -41,7 +41,8 @@ async def remote_queue_coroutine(msg):
         result = await maybe_await(attr(*args, **kwargs))
     elif is_property(run_manager, attr_name):
         if args:
-            setattr(run_manager, attr_name, args[0])
+            if args[0] is not None:
+                setattr(run_manager, attr_name, args[0])
         result = attr
     else:
         raise ValueError(
