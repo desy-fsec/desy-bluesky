@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Dict, Any
 
-from nexusformat.nexus.tree import *
+from nexusformat.nexus.tree import NXfield, NXattr, NXgroup
 
 
 class NexusWriter:
@@ -17,7 +17,7 @@ class NexusWriter:
 
     @property
     def model(self):
-        return self._models
+        return self._model
 
     @property
     def file_path(self):

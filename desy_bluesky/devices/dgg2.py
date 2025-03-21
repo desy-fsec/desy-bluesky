@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated as A
 
-from bluesky.protocols import Triggerable, Stoppable, SyncOrAsync
+from bluesky.protocols import Triggerable, Stoppable
 
 from ophyd_async.core import (
     DEFAULT_TIMEOUT,
@@ -10,14 +10,12 @@ from ophyd_async.core import (
     SignalX,
     SignalRW,
     SignalR,
-    wait_for_value,
     StandardReadableFormat as Format,
 )
 from ophyd_async.tango.core import TangoPolling
 from tango import DevState
 
 from .fsec_readable_device import FSECReadableDevice
-import asyncio
 
 # TODO: SAWFT only works for SampleTime < 3.0 seconds. Solve this.
 

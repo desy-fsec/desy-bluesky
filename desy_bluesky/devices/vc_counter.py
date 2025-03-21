@@ -24,7 +24,6 @@ class VcCounter(FSECReadableDevice):
         # Not used, I added it here because SIS3820 has it
         self.offset = soft_signal_rw(float, initial_value=0.0)
         super().__init__(trl, name)
-        
 
     async def _reset(self) -> None:
         await self.Reset.trigger()

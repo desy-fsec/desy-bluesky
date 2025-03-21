@@ -7,7 +7,6 @@ import numpy as np
 from bluesky.protocols import Movable, Stoppable
 
 from ophyd_async.core import (
-    DEFAULT_TIMEOUT,
     soft_signal_rw,
     AsyncStatus,
     SignalRW,
@@ -15,11 +14,8 @@ from ophyd_async.core import (
     SignalX,
     wait_for_value,
     StandardReadableFormat as Format,
-    Array1D
+    Array1D,
 )
-
-
-from tango import DevState
 
 from .fsec_readable_device import FSECReadableDevice
 
@@ -42,7 +38,7 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
         self._set_success = True
         with self.add_children_as_readables(Format.CONFIG_SIGNAL):
             self.Offset = soft_signal_rw(float, initial_value=offset)
-        super().__init__(trl, name)        
+        super().__init__(trl, name)
 
     @AsyncStatus.wrap
     async def set(

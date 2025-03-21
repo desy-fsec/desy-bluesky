@@ -20,7 +20,6 @@ from ophyd_async.tango.core import (
     TangoPolling,
 )
 
-from tango import DeviceProxy
 
 from .fsec_readable_device import FSECReadableDevice
 

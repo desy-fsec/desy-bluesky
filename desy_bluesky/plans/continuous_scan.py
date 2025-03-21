@@ -1,9 +1,9 @@
 import bluesky.plan_stubs as bps
 from typing import List
 from bluesky.protocols import Readable, Movable, Triggerable
-import time
 
 READABLE_AND_TRIGGERABLE = Readable | Triggerable
+
 
 def continuous_scan(
     detectors: List[READABLE_AND_TRIGGERABLE],

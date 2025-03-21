@@ -16,10 +16,9 @@ from ophyd_async.core import (
     CalculatableTimeout,
     CALCULATE_TIMEOUT,
     StandardReadableFormat as Format,
-    Ignore
+    Ignore,
 )
 
-from tango import DevState
 
 from .fsec_readable_device import FSECReadableDevice
 
@@ -65,9 +64,11 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
         self._set_success = success
         return self.StopMove.trigger()
 
+
 class OmsVME58MotorNoEncoder(OmsVME58Motor):
     PositionEncoder: Ignore
     PositionEncoderRaw: Ignore
+
 
 class OmsVME58MotorEncoder(OmsVME58Motor):
     PositionEncoder: A[SignalR[float], Format.UNCACHED_SIGNAL]
