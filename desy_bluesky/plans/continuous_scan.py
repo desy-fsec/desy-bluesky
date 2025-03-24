@@ -1,12 +1,11 @@
 import bluesky.plan_stubs as bps
-from typing import List
+from typing import Sequence
 from bluesky.protocols import Readable, Movable, Triggerable
 
 READABLE_AND_TRIGGERABLE = Readable | Triggerable
 
-
 def continuous_scan(
-    detectors: List[READABLE_AND_TRIGGERABLE],
+    detectors: Sequence[Readable],
     motor: Movable,
     start: float,
     stop: float,
@@ -34,18 +33,11 @@ def continuous_scan(
     _md.update(md)
 
     yield from bps.mv(motor, start)
+    yield from bps.checkpoint()
     yield from bps.open_run(_md)
+    
     move_status = yield from bps.abs_set(motor, stop)
-
     while move_status.done is False:
-        yield from bps.checkpoint()
-        yield from bps.create()
-        for det in detectors:
-            yield from bps.trigger(det, group="dets")
-        yield from bps.wait("dets")
-        yield from bps.read(motor)
-        for det in detectors:
-            yield from bps.read(det)
-
-        yield from bps.save()
+        yield from bps.trigger_and_read(detectors)
+        
     yield from bps.close_run()
