@@ -2303,3 +2303,163 @@ def logout(rm: UnionREManagerAPI):
         A generator that yields a Msg object.
     """
     return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "logout", [], {}))
+
+def console_monitor_enabled(rm: UnionREManagerAPI):
+    """
+    Enable/disable console monitor.
+
+    Parameters
+    ----------
+    rm : UnionREManagerAPI
+        The RE Manager API instance.
+    enabled : bool
+        If True, enable console monitor.
+
+    Returns
+    -------
+    generator
+        A generator that yields a Msg object.
+    """
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "enabled", [], {}))
+
+def console_monitor_enable(rm: UnionREManagerAPI):
+    """
+    Enable console monitor.
+
+    Parameters
+    ----------
+    rm : UnionREManagerAPI
+        The RE Manager API instance.
+
+    Returns
+    -------
+    generator
+        A generator that yields a Msg object.
+    """
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "enable", [], {}))
+
+def console_monitor_disable(rm: UnionREManagerAPI):
+    """
+    Disable console monitor.
+
+    Parameters
+    ----------
+    rm : UnionREManagerAPI
+        The RE Manager API instance.
+
+    Returns
+    -------
+    generator
+        A generator that yields a Msg object.
+    """
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "disable", [], {}))
+
+def console_monitor_disable_wait(rm: UnionREManagerAPI, timeout: float = 2):
+    """
+    Disable console monitor and wait for completion.
+
+    Parameters
+    ----------
+    rm : UnionREManagerAPI
+        The RE Manager API instance.
+    timeout : float, optional
+        Timeout in seconds.
+
+    Returns
+    -------
+    generator
+        A generator that yields a Msg object.
+    """
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "disable_wait", [], {"timeout": timeout}))
+
+def console_monitor_clear(rm: UnionREManagerAPI):
+    """
+    Clear console monitor.
+
+    Parameters
+    ----------
+    rm : UnionREManagerAPI
+        The RE Manager API instance.
+
+    Returns
+    -------
+    generator
+        A generator that yields a Msg object.
+    """
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "clear", [], {}))
+
+def console_monitor_next_msg(rm: UnionREManagerAPI, timeout: float | None = None):
+    """
+    Get the next message from the console monitor.
+
+    Parameters
+    ----------
+    rm : UnionREManagerAPI
+        The RE Manager API instance.
+    timeout : float, optional
+        Timeout in seconds.
+
+    Returns
+    -------
+    generator
+        A generator that yields a Msg object.
+    """
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "next_msg", [], {"timeout": timeout}))
+
+def console_monitor_text_max_lines(rm: UnionREManagerAPI, max_lines: int | None = None):
+    """
+    Get/set the maximum size of the text buffer. The new buffer size is applied to the existing buffer, removing extra messages if necessary.
+
+    Parameters
+    ----------
+    rm : UnionREManagerAPI
+        The RE Manager API instance.
+    max_lines : int
+        The maximum number of lines.
+
+    Returns
+    -------
+    generator
+        A generator that yields a Msg object.
+    """
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "text_max_lines", [max_lines], {}))
+
+def console_monitor_text_uid(rm: UnionREManagerAPI):
+    """
+    Get the UID of the text buffer.
+
+    Parameters
+    ----------
+    rm : UnionREManagerAPI
+        The RE Manager API instance.
+
+    Returns
+    -------
+    generator
+        A generator that yields a Msg object.
+    """
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "text_uid", [], {}))
+
+def console_monitor_text(rm: UnionREManagerAPI, nlines: int | None = None):
+    """
+    Get the text buffer.
+
+    Parameters
+    ----------
+    rm : UnionREManagerAPI
+        The RE Manager API instance.
+    nlines : int, optional
+        The number of lines to get.
+
+    Returns
+    -------
+    generator
+        A generator that yields a Msg object.
+    """
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "text", [nlines], {}))
+    
+    
+
+    
+
+
