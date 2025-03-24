@@ -75,4 +75,18 @@ from .remote_queue import (
     principal_info,
     api_scopes,
     logout,
+    console_monitor_enabled,
+    console_monitor_enable,
+    console_monitor_disable,
+    console_monitor_disable_wait,
+    console_monitor_clear,
+    console_monitor_next_msg,
+    console_monitor_text_max_lines,
+    console_monitor_text_uid,
+    console_monitor_text,    
+)
+from .sample_environment import (
+    ramp,
+    dwell,
+    ramp_and_dwell,
 )
