@@ -1590,6 +1590,8 @@ def script_upload(
 ):
     """
     Upload a script to the RE Manager.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1637,6 +1639,8 @@ def function_execute(
 ):
     """
     Execute a function on the RE Manager.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1677,6 +1681,8 @@ def function_execute(
 def task_status(rm: UnionREManagerAPI, task_uid: str | Iterable[str]):
     """
     Get the status of a task.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1696,6 +1702,8 @@ def task_status(rm: UnionREManagerAPI, task_uid: str | Iterable[str]):
 def task_result(rm: UnionREManagerAPI, task_uid: str):
     """
     Get the result of a task.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1721,6 +1729,8 @@ def wait_for_completed_task(
 ):
     """
     Wait for a task to complete.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1758,6 +1768,8 @@ def wait_for_completed_task(
 def re_runs(rm: UnionREManagerAPI, option: str | None = None, reload: bool = False):
     """
     Get the list of completed runs.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1785,6 +1797,8 @@ def re_pause(
 ):
     """
     Pause the currently running plan.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1810,6 +1824,8 @@ def re_pause(
 def re_resume(rm: UnionREManagerAPI, lock_key: str | None = None):
     """
     Resume the currently paused plan.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1833,6 +1849,8 @@ def re_resume(rm: UnionREManagerAPI, lock_key: str | None = None):
 def re_stop(rm: UnionREManagerAPI, lock_key: str | None = None):
     """
     Stop the currently running plan.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1854,6 +1872,8 @@ def re_stop(rm: UnionREManagerAPI, lock_key: str | None = None):
 def re_abort(rm: UnionREManagerAPI, lock_key: str | None = None):
     """
     Abort the currently running plan.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1875,6 +1895,8 @@ def re_abort(rm: UnionREManagerAPI, lock_key: str | None = None):
 def re_halt(rm: UnionREManagerAPI, lock_key: str | None = None):
     """
     Halt the currently running plan.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1901,6 +1923,8 @@ def kernel_interrupt(
 ):
     """
     Interrupt the IPython kernel.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1936,6 +1960,8 @@ def kernel_interrupt(
 def auth_method(rm: UnionREManagerAPI):
     """
     Get the authorization method.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1953,6 +1979,8 @@ def auth_method(rm: UnionREManagerAPI):
 def auth_key(rm: UnionREManagerAPI):
     """
     Get the authorization key.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -1975,6 +2003,8 @@ def set_authorization_key(
 ):
     """
     Set the authorization key.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2011,6 +2041,8 @@ def login(
 ):
     """
     Log in to the RE Manager.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2042,6 +2074,8 @@ def login(
 def session_refresh(rm: UnionREManagerAPI, refresh_token: str | None = None):
     """
     Refresh the session.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2074,6 +2108,8 @@ def session_revoke(
 ):
     """
     Revoke a session.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2111,6 +2147,8 @@ def apikey_new(
 ):
     """
     Generate a new API key.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2149,6 +2187,8 @@ def apikey_new(
 def apikey_info(rm: UnionREManagerAPI, api_key: str | None = None):
     """
     Get information about an API key.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2177,6 +2217,8 @@ def apikey_delete(
 ):
     """
     Delete an API key.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2208,6 +2250,8 @@ def apikey_delete(
 def whoami(rm: UnionREManagerAPI, token: str | None = None, api_key: str | None = None):
     """
     Get information about the current user.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2233,6 +2277,8 @@ def whoami(rm: UnionREManagerAPI, token: str | None = None, api_key: str | None 
 def principal_info(rm: UnionREManagerAPI, principal_uid: str | None = None):
     """
     Get information about a principal.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2262,6 +2308,8 @@ def api_scopes(
 ):
     """
     Get the API scopes.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2291,6 +2339,8 @@ def api_scopes(
 def logout(rm: UnionREManagerAPI):
     """
     Log out from the RE Manager.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2307,6 +2357,8 @@ def logout(rm: UnionREManagerAPI):
 def console_monitor_enabled(rm: UnionREManagerAPI):
     """
     Enable/disable console monitor.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2325,6 +2377,8 @@ def console_monitor_enabled(rm: UnionREManagerAPI):
 def console_monitor_enable(rm: UnionREManagerAPI):
     """
     Enable console monitor.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2341,6 +2395,8 @@ def console_monitor_enable(rm: UnionREManagerAPI):
 def console_monitor_disable(rm: UnionREManagerAPI):
     """
     Disable console monitor.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2357,6 +2413,8 @@ def console_monitor_disable(rm: UnionREManagerAPI):
 def console_monitor_disable_wait(rm: UnionREManagerAPI, timeout: float = 2):
     """
     Disable console monitor and wait for completion.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2375,6 +2433,8 @@ def console_monitor_disable_wait(rm: UnionREManagerAPI, timeout: float = 2):
 def console_monitor_clear(rm: UnionREManagerAPI):
     """
     Clear console monitor.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2391,6 +2451,8 @@ def console_monitor_clear(rm: UnionREManagerAPI):
 def console_monitor_next_msg(rm: UnionREManagerAPI, timeout: float | None = None):
     """
     Get the next message from the console monitor.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2408,7 +2470,10 @@ def console_monitor_next_msg(rm: UnionREManagerAPI, timeout: float | None = None
 
 def console_monitor_text_max_lines(rm: UnionREManagerAPI, max_lines: int | None = None):
     """
-    Get/set the maximum size of the text buffer. The new buffer size is applied to the existing buffer, removing extra messages if necessary.
+    Get/set the maximum size of the text buffer. The new buffer size is applied to the existing buffer,
+    removing extra messages if necessary.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2427,6 +2492,8 @@ def console_monitor_text_max_lines(rm: UnionREManagerAPI, max_lines: int | None 
 def console_monitor_text_uid(rm: UnionREManagerAPI):
     """
     Get the UID of the text buffer.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
@@ -2443,6 +2510,8 @@ def console_monitor_text_uid(rm: UnionREManagerAPI):
 def console_monitor_text(rm: UnionREManagerAPI, nlines: int | None = None):
     """
     Get the text buffer.
+    
+    https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
     ----------
