@@ -4,7 +4,7 @@ from typing import Annotated as A
 
 import asyncio
 
-from bluesky.protocols import Movable, Stoppable, SyncOrAsync
+from bluesky.protocols import Callback, Movable, Stoppable, SyncOrAsync, Subscribable, T
 
 from ophyd_async.core import (
     AsyncStatus,
@@ -18,6 +18,7 @@ from ophyd_async.core import (
     StandardReadableFormat as Format,
     Ignore,
 )
+from ophyd_async.tango.core import TangoPolling
 
 
 from .fsec_readable_device import FSECReadableDevice
@@ -63,7 +64,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     def stop(self, success: bool = False) -> SyncOrAsync:
         self._set_success = success
         return self.StopMove.trigger()
-
+    
 
 class OmsVME58MotorNoEncoder(OmsVME58Motor):
     PositionEncoder: Ignore
@@ -73,3 +74,12 @@ class OmsVME58MotorNoEncoder(OmsVME58Motor):
 class OmsVME58MotorEncoder(OmsVME58Motor):
     PositionEncoder: A[SignalR[float], Format.UNCACHED_SIGNAL]
     PositionEncoderRaw: A[SignalR[float], Format.UNCACHED_SIGNAL]
+
+class PolledOmsVME58MotorNoEncoder(OmsVME58MotorNoEncoder, Subscribable):
+    Position: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
+    
+    def subscribe(self, function: Callback[T]):
+        self.Position.subscribe(function)
+    
+    def clear_sub(self, function: Callback[T]):
+        self.Position.clear_sub(function)

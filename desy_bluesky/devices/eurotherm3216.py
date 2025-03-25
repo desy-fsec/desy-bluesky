@@ -53,7 +53,7 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
         Setpoint is considered set when the temperature is within this tolerance.
     """
 
-    Temperature: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
+    Temperature: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(1.0, 0.1)]
     Setpoint: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     SetpointRamp: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SetpointDwell: A[SignalRW[float], Format.CONFIG_SIGNAL]
@@ -118,8 +118,8 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
 
         return _stop()
 
-    def subscribe(self, cb):
-        return self.Temperature.subscribe(cb)
+    def subscribe(self, function):
+        return self.Temperature.subscribe(function)
 
-    def clear_sub(self, sub):
-        self.Temperature.clear_sub(sub)
+    def clear_sub(self, function):
+        self.Temperature.clear_sub(function)
