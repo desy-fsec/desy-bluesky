@@ -6,7 +6,7 @@ def ramp_dwell_read(
     positioner: Any,
     setpoint: float,
     dwell_time: float,
-    sample_period: float,
+    sample_period: float | None = None,
     md: Dict[str, Any] | None = None
 ):
     """
@@ -20,8 +20,8 @@ def ramp_dwell_read(
         The target setpoints for the positioner.
     dwell_time (s) : Sequence[float]
         The times to dwell at each setpoint.
-    sample_period (s) : float
-        The period at which to sample the detectors.
+    sample_period (s) : float, optional
+        The period at which to sample the detectors. If None, the detectors will not be sampled.
     md : dict, optional
         Metadata to include in the run.
     """
@@ -40,17 +40,24 @@ def ramp_dwell_read(
     if md is not None:
         _md.update(md)
 
-    yield from bps.open_run(md=_md)
+    ramp_status = yield from bps.abs_set(positioner, setpoint, group='ramp', wait=False)
     
-    ramp_status = yield from bps.abs_set(positioner, setpoint, wait=False)
-    while not ramp_status.done:
-        yield from bps.trigger_and_read([positioner])
-        yield from bps.sleep(sample_period)
+    if sample_period is not None:
+        sample_period = float(sample_period)
+        yield from bps.open_run(md=_md)
+        while not ramp_status.done:
+            yield from bps.trigger_and_read([positioner])
+            yield from bps.sleep(sample_period)
+        
+        start_of_dwell = time.time()
+        while time.time() - start_of_dwell < dwell_time:
+            yield from bps.trigger_and_read([positioner])
+            yield from bps.sleep(sample_period)
+        yield from bps.close_run()
+        
+    else:
+        yield from bps.wait('ramp')
+        yield from bps.sleep(dwell_time)
     
-    start_of_dwell = time.time()
-    while time.time() - start_of_dwell < dwell_time:
-        yield from bps.trigger_and_read([positioner])
-        yield from bps.sleep(sample_period)    
     
-    yield from bps.close_run()
     
