@@ -10,6 +10,7 @@ from ophyd_async.core import (
     WatchableAsyncStatus,
     AsyncStatus,
     SignalRW,
+    SignalR,
     set_and_wait_for_other_value,
     StandardReadableFormat as Format,
     WatcherUpdate,
@@ -30,12 +31,12 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
 
     Attributes
     ----------
-    Temperature : SignalRW[float]
+    Temperature : SignalR[float]
         The current temperature (deg C)
     Setpoint : SignalRW[float]
         The setpoint temperature (deg C)
     SetpointRamp : SignalRW[float]
-        The setpoint ramp rate (deg C/min)
+        The setpoint ramp rate (0.1 deg C/min)
     SetpointDwell : SignalRW[float]
         The setpoint dwell time (min)
     SetpointMin : SignalRW[float]
@@ -53,7 +54,7 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
         Setpoint is considered set when the temperature is within this tolerance.
     """
 
-    Temperature: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(1.0, 0.1)]
+    Temperature: A[SignalR[float], Format.HINTED_SIGNAL, TangoPolling(1.0, 0.1)]
     Setpoint: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     SetpointRamp: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SetpointDwell: A[SignalRW[float], Format.CONFIG_SIGNAL]
