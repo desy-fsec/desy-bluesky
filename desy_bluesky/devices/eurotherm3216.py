@@ -4,7 +4,7 @@ from typing import Annotated as A
 
 import numpy as np
 
-from bluesky.protocols import Movable, Stoppable, SyncOrAsync, Subscribable
+from bluesky.protocols import Movable, Stoppable, SyncOrAsync, Subscribable, Preparable
 
 from ophyd_async.core import (
     WatchableAsyncStatus,
@@ -25,7 +25,7 @@ from ophyd_async.tango.core import (
 from .fsec_readable_device import FSECReadableDevice
 
 
-class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
+class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable, Preparable):
     """
     Eurotherm 3216 temperature controller
 
@@ -73,6 +73,10 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
         self._set_success = False
         self.setpoint_tolerance = soft_signal_rw(float, 2.0, "setpoint_tolerance", "C")
         self.add_readables([self.setpoint_tolerance], Format.CONFIG_SIGNAL)
+    
+    @AsyncStatus.wrap
+    async def prepare(self, value):
+        await self.SetpointRamp.set(value)
 
     @WatchableAsyncStatus.wrap
     async def set(self, value: float, timeout=None):
