@@ -38,6 +38,7 @@ def continuous_scan(
     
     move_status = yield from bps.abs_set(motor, stop)
     while move_status.done is False:
-        yield from bps.trigger_and_read(detectors)
+        detectors_and_motor = detectors + [motor]
+        yield from bps.trigger_and_read(detectors_and_motor)
         
     yield from bps.close_run()

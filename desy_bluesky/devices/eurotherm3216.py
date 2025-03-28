@@ -4,7 +4,7 @@ from typing import Annotated as A
 
 import numpy as np
 
-from bluesky.protocols import Movable, Stoppable, SyncOrAsync, Subscribable, Preparable
+from bluesky.protocols import Movable, Stoppable, SyncOrAsync, Subscribable, Preparable, Reading
 
 from ophyd_async.core import (
     WatchableAsyncStatus,
@@ -16,6 +16,8 @@ from ophyd_async.core import (
     WatcherUpdate,
     soft_signal_rw,
     observe_value,
+    SignalDatatypeT,
+    Callback,
 )
 from ophyd_async.tango.core import (
     TangoPolling,
@@ -55,7 +57,7 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable, Prepar
     """
 
     Temperature: A[SignalR[float], Format.HINTED_SIGNAL, TangoPolling(1.0, 0.1)]
-    Setpoint: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
+    Setpoint: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(1.0, 0.1)]
     SetpointRamp: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SetpointDwell: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SetpointMin: A[SignalRW[float], Format.CONFIG_SIGNAL]
@@ -122,9 +124,16 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable, Prepar
             )
 
         return _stop()
+    
+    def subscribe(
+        self, function: Callback[dict[str, Reading]]
+    ) -> None:
+        """Subscribe to updates in the reading.
 
-    def subscribe(self, function):
-        return self.Temperature.subscribe(function)
+        :param function: The callback function to call when the reading changes.
+        """
+        self.Temperature.subscribe(function)
+
 
     def clear_sub(self, function):
         self.Temperature.clear_sub(function)
