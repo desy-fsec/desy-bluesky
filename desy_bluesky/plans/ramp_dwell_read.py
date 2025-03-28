@@ -1,10 +1,10 @@
 import bluesky.plan_stubs as bps
-from bluesky.protocols import Readable
+from bluesky.protocols import Readable, Movable
 from typing import Dict, Any, List
 import time
 
 def ramp_dwell_read(
-    positioner: Any,
+    positioner: Movable,
     readables: List[Readable],
     setpoint: float,
     dwell_time: float,
