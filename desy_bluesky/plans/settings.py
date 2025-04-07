@@ -1,3 +1,4 @@
+from typing import List
 from ophyd_async.core import (
     YamlSettingsProvider,
     Device
@@ -18,7 +19,7 @@ __all__ = [
     'use_settings'
 ]
 
-def save_device_settings(provider: YamlSettingsProvider | str, devices: list):
+def save_device_settings(provider: YamlSettingsProvider | str, devices: List[Device]):
     """
     Create a provider directory and store the settings of the devices.
 
@@ -31,16 +32,14 @@ def save_device_settings(provider: YamlSettingsProvider | str, devices: list):
     """
     if isinstance(provider, str):
         provider = YamlSettingsProvider(provider)
-    
-    provider_path = str(provider._file_path)
-        
-    if not os.path.exists(provider_path):
-        os.makedirs(provider_path)
+    directory = str(provider._directory)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     for device in devices:
         yield from store_settings(provider, device.name, device, True)
 
 
-def load_device_settings(provider: YamlSettingsProvider | str, devices: list):
+def load_device_settings(provider: YamlSettingsProvider | str, devices: List[Device]):
     """
     Load settings from a provider and apply them to the devices.
 

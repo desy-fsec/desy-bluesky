@@ -4,17 +4,20 @@ from typing import Annotated as A
 
 import numpy as np
 
-from bluesky.protocols import Movable, Stoppable, SyncOrAsync, Subscribable
+from bluesky.protocols import Movable, Stoppable, SyncOrAsync, Subscribable, Preparable, Reading
 
 from ophyd_async.core import (
     WatchableAsyncStatus,
     AsyncStatus,
     SignalRW,
+    SignalR,
     set_and_wait_for_other_value,
     StandardReadableFormat as Format,
     WatcherUpdate,
     soft_signal_rw,
     observe_value,
+    SignalDatatypeT,
+    Callback,
 )
 from ophyd_async.tango.core import (
     TangoPolling,
@@ -24,18 +27,18 @@ from ophyd_async.tango.core import (
 from .fsec_readable_device import FSECReadableDevice
 
 
-class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
+class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable, Preparable):
     """
     Eurotherm 3216 temperature controller
 
     Attributes
     ----------
-    Temperature : SignalRW[float]
+    Temperature : SignalR[float]
         The current temperature (deg C)
     Setpoint : SignalRW[float]
         The setpoint temperature (deg C)
     SetpointRamp : SignalRW[float]
-        The setpoint ramp rate (deg C/min)
+        The setpoint ramp rate (0.1 deg C/min)
     SetpointDwell : SignalRW[float]
         The setpoint dwell time (min)
     SetpointMin : SignalRW[float]
@@ -53,8 +56,8 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
         Setpoint is considered set when the temperature is within this tolerance.
     """
 
-    Temperature: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(1.0, 0.1)]
-    Setpoint: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
+    Temperature: A[SignalR[float], Format.HINTED_SIGNAL, TangoPolling(1.0, 0.1)]
+    Setpoint: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(1.0, 0.1)]
     SetpointRamp: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SetpointDwell: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SetpointMin: A[SignalRW[float], Format.CONFIG_SIGNAL]
@@ -72,6 +75,10 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
         self._set_success = False
         self.setpoint_tolerance = soft_signal_rw(float, 2.0, "setpoint_tolerance", "C")
         self.add_readables([self.setpoint_tolerance], Format.CONFIG_SIGNAL)
+    
+    @AsyncStatus.wrap
+    async def prepare(self, value):
+        await self.SetpointRamp.set(value)
 
     @WatchableAsyncStatus.wrap
     async def set(self, value: float, timeout=None):
@@ -117,9 +124,16 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable):
             )
 
         return _stop()
+    
+    def subscribe(
+        self, function: Callback[dict[str, Reading]]
+    ) -> None:
+        """Subscribe to updates in the reading.
 
-    def subscribe(self, function):
-        return self.Temperature.subscribe(function)
+        :param function: The callback function to call when the reading changes.
+        """
+        self.Temperature.subscribe(function)
+
 
     def clear_sub(self, function):
         self.Temperature.clear_sub(function)
