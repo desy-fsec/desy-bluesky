@@ -31,9 +31,8 @@ def continuous_scan(
 
     md = md or {}
     _md.update(md)
-
-    yield from bps.mv(motor, start)
     yield from bps.checkpoint()
+    yield from bps.mv(motor, start)
     yield from bps.open_run(_md)
     
     move_status = yield from bps.abs_set(motor, stop)
