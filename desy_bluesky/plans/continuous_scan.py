@@ -1,8 +1,6 @@
 import bluesky.plan_stubs as bps
 from typing import List
-from bluesky.protocols import Readable, Movable, Triggerable
-
-READABLE_AND_TRIGGERABLE = Readable | Triggerable
+from bluesky.protocols import Readable, Movable
 
 def continuous_scan(
     detectors: List[Readable],
@@ -31,9 +29,9 @@ def continuous_scan(
 
     md = md or {}
     _md.update(md)
+    yield from bps.open_run(_md)
     yield from bps.checkpoint()
     yield from bps.mv(motor, start)
-    yield from bps.open_run(_md)
     
     move_status = yield from bps.abs_set(motor, stop)
     while move_status.done is False:
