@@ -9,7 +9,7 @@ def continuous_scan(
     motor: Movable,
     start: float,
     stop: float,
-    sample_rate: float,
+    sample_period: float,
     md=None,
 ):
 
@@ -22,7 +22,7 @@ def continuous_scan(
             "motor": motor.name,
             "start": start,
             "stop": stop,
-            "sample_rate": sample_rate,
+            "sample_rate": sample_period,
         },
         "plan_pattern": "",
         "plan_pattern_module": "",
@@ -39,5 +39,6 @@ def continuous_scan(
     while move_status.done is False:
         detectors_and_motor = detectors + [motor]
         yield from bps.trigger_and_read(detectors_and_motor)
+        yield from bps.sleep(sample_period)
         
     yield from bps.close_run()
