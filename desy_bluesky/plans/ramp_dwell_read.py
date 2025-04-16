@@ -31,7 +31,7 @@ def ramp_dwell_read(
     """
     _md = {
         "plan_name": "ramp_and_read",
-        "motors": positioner.name,
+        "motors": [positioner.name],
         "detectors": [det.name for det in readables] + [positioner.name],
         "plan_args": {
             "positioner": positioner.name,
