@@ -7,6 +7,8 @@ from .settings import (
     use_settings
 )
 from .ramp_dwell_read import ramp_dwell_read
+from .ramp import ramp
+from .dwell import dwell
 
 __all__ = ["InjectMD",
            "continuous_scan",
@@ -14,5 +16,7 @@ __all__ = ["InjectMD",
            "load_device_settings",
            "set_provider",
            "use_settings",
-           "ramp_dwell_read"
+           "ramp_dwell_read",
+           "ramp",
+           "dwell",
 ]
