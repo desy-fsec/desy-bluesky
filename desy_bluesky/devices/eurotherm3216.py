@@ -38,7 +38,7 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable, Prepar
     Setpoint : SignalRW[float]
         The setpoint temperature (deg C)
     SetpointRamp : SignalRW[float]
-        The setpoint ramp rate (0.1 deg C/min)
+        The setpoint ramp rate (1.0 deg C/min)
     SetpointDwell : SignalRW[float]
         The setpoint dwell time (min)
     SetpointMin : SignalRW[float]
