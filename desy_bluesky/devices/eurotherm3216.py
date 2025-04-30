@@ -39,8 +39,6 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable, Prepar
         The setpoint temperature (deg C)
     SetpointRamp : SignalRW[float]
         The setpoint ramp rate (1.0 deg C/min)
-    SetpointDwell : SignalRW[float]
-        The setpoint dwell time (min)
     SetpointMin : SignalRW[float]
         The minimum setpoint temperature (deg C)
     SetpointMax : SignalRW[float]
@@ -49,8 +47,6 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable, Prepar
         The minimum power
     PowerMax : SignalRW[float]
         The maximum power
-    CurrentPIDSet : SignalRW[float]
-        The current PID setting
     setpoint_tolerance : SignalRW[float]
         The tolerance for setting the setpoint (deg C). Default is 2.0 deg C
         Setpoint is considered set when the temperature is within this tolerance.
@@ -59,12 +55,10 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable, Prepar
     Temperature: A[SignalR[float], Format.HINTED_SIGNAL, TangoPolling(1.0, 0.1)]
     Setpoint: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(1.0, 0.1)]
     SetpointRamp: A[SignalRW[float], Format.CONFIG_SIGNAL]
-    SetpointDwell: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SetpointMin: A[SignalRW[float], Format.CONFIG_SIGNAL]
     SetpointMax: A[SignalRW[float], Format.CONFIG_SIGNAL]
     PowerMin: A[SignalRW[float], Format.CONFIG_SIGNAL]
     PowerMax: A[SignalRW[float], Format.CONFIG_SIGNAL]
-    CurrentPIDSet: A[SignalRW[float], Format.CONFIG_SIGNAL]
 
     def __init__(
         self,
