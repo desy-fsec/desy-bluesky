@@ -47,7 +47,7 @@ DEVICE_INIT_TIMEOUT = 10
 T = TypeVar("T")
 
 
-async def create_devices(devlist: Dict[str, Dict[str, Any]], namespace: Dict[str, T] = None) -> None:
+async def create_devices(devlist: Dict[str, Dict[str, Any]], namespace: Dict[str, T] | None = None) -> Dict[str, Any]:
     """
     Create devices asynchronously from a dictionary of device types and their URIs.
 
@@ -89,13 +89,16 @@ async def create_devices(devlist: Dict[str, Dict[str, Any]], namespace: Dict[str
             print(f"Error: {exc}")
             return
 
-    await asyncio.gather(*tasks)
+    devices = await asyncio.gather(*tasks)
+    device_dict = {dev.name: dev for dev in devices}
 
     if not DEVICES_TO_BE_CREATED:
         print("All startup devices created.")
     else:
         print("Error: Not all devices created.")
         print("Devices not created: ", DEVICES_TO_BE_CREATED)
+    
+    return device_dict
 
 
 async def _create_device(dtype: T, uri: str = None, namespace: Dict[str, T] = None, **kwargs) -> T:
