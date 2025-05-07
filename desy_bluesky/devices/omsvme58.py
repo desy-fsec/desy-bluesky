@@ -69,6 +69,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
 class OmsVME58MotorNoEncoder(OmsVME58Motor):
     PositionEncoder: Ignore
     PositionEncoderRaw: Ignore
+    StepPositionController: A[SignalRW[int], Format.UNCACHED_SIGNAL]
 
 
 class OmsVME58MotorEncoder(OmsVME58Motor):
