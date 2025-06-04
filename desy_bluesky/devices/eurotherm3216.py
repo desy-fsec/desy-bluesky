@@ -1,10 +1,19 @@
 from __future__ import annotations
 
-from typing import Annotated as A
+from typing import Annotated as A, Dict, List
 
 import numpy as np
 
-from bluesky.protocols import Movable, Stoppable, SyncOrAsync, Subscribable, Preparable, Reading
+from bluesky.protocols import (
+    Movable,
+    Stoppable,
+    SyncOrAsync,
+    Subscribable,
+    Preparable,
+    Reading,
+    T,
+    Callback
+)
 
 from ophyd_async.core import (
     WatchableAsyncStatus,
@@ -16,12 +25,12 @@ from ophyd_async.core import (
     WatcherUpdate,
     soft_signal_rw,
     observe_value,
-    SignalDatatypeT,
     Callback,
 )
 from ophyd_async.tango.core import (
     TangoPolling,
 )
+from ophyd_async.core._utils import DEFAULT_TIMEOUT, LazyMock
 
 
 from .fsec_readable_device import FSECReadableDevice
@@ -65,11 +74,29 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable, Prepar
         trl: str,
         name: str = "",
     ) -> None:
+        with self.add_children_as_readables(Format.CONFIG_SIGNAL):
+            self.setpoint_tolerance = soft_signal_rw(float, 2.0, "setpoint_tolerance", "C")
         super().__init__(trl=trl, name=name)
         self._set_success = False
-        self.setpoint_tolerance = soft_signal_rw(float, 2.0, "setpoint_tolerance", "C")
-        self.add_readables([self.setpoint_tolerance], Format.CONFIG_SIGNAL)
+        self._cache: Dict[str, Reading] = {}
+        self._callbacks: List[Callback[T]] = []
     
+    async def connect(
+        self,
+        mock: bool | LazyMock = False,
+        timeout: float = DEFAULT_TIMEOUT,
+        force_reconnect: bool = False,
+    ) -> None:
+        await super().connect()
+        self.Temperature.subscribe(self._update_cache)
+        self.Setpoint.subscribe(self._update_cache)
+
+    def _update_cache(self, foo: dict[str, Reading]):
+        self._cache.update(foo)
+        if self._callbacks:
+            for callback in self._callbacks:
+                callback(self._cache)
+        
     @AsyncStatus.wrap
     async def prepare(self, value):
         await self.SetpointRamp.set(value)
@@ -118,16 +145,15 @@ class Eurotherm3216(FSECReadableDevice, Movable, Stoppable, Subscribable, Prepar
             )
 
         return _stop()
-    
-    def subscribe(
-        self, function: Callback[dict[str, Reading]]
-    ) -> None:
-        """Subscribe to updates in the reading.
 
-        :param function: The callback function to call when the reading changes.
-        """
-        self.Temperature.subscribe(function)
+    def subscribe(self, function: Callback[T]):
+        if function not in self._callbacks:
+            self._callbacks.append(function)
+        else:
+            raise ValueError("Function already subscribed")
 
-
-    def clear_sub(self, function):
-        self.Temperature.clear_sub(function)
+    def clear_sub(self, function: Callback[T]):
+        if function in self._callbacks:
+            self._callbacks.remove(function)
+        else:
+            raise ValueError("Function not subscribed")
