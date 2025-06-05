@@ -47,7 +47,9 @@ DEVICE_INIT_TIMEOUT = 10
 T = TypeVar("T")
 
 
-async def create_devices(devlist: Dict[str, Dict[str, Any]], namespace: Dict[str, T] | None = None) -> Dict[str, Any]:
+async def create_devices(
+    devlist: Dict[str, Dict[str, Any]], namespace: Dict[str, T] | None = None
+) -> Dict[str, Any]:
     """
     Create devices asynchronously from a dictionary of device types and their URIs.
 
@@ -60,7 +62,10 @@ async def create_devices(devlist: Dict[str, Dict[str, Any]], namespace: Dict[str
         return
     tasks = []
     if not namespace:
-        print("Warning: No namespace provided. The namespace of the calling module will" " be used.")
+        print(
+            "Warning: No namespace provided. The namespace of the calling module will"
+            " be used."
+        )
         namespace = globals()
 
     _check_valid_device_names(devlist)
@@ -73,17 +78,24 @@ async def create_devices(devlist: Dict[str, Dict[str, Any]], namespace: Dict[str
         try:
             async with RESOURCE_LOCK:
                 device_type = namespace[device_info["driver"]]
-        except KeyError as __:
+        except KeyError:
             device_type = _get_device_type(device_info["driver"])
         # Get uri if key exists otherwise set to None
         uri = device_info.get("uri", None)
         try:
             tasks.append(
                 asyncio.create_task(
-                    _create_device(dtype=device_type, uri=uri, namespace=namespace, **device_info["kwargs"])
+                    _create_device(
+                        dtype=device_type,
+                        uri=uri,
+                        namespace=namespace,
+                        **device_info["kwargs"],
+                    )
                 )
             )
-            tasks[-1].add_done_callback(lambda task: _device_init_callback(task, namespace))
+            tasks[-1].add_done_callback(
+                lambda task: _device_init_callback(task, namespace)
+            )
 
         except KeyError as exc:
             print(f"Error: {exc}")
@@ -97,11 +109,13 @@ async def create_devices(devlist: Dict[str, Dict[str, Any]], namespace: Dict[str
     else:
         print("Error: Not all devices created.")
         print("Devices not created: ", DEVICES_TO_BE_CREATED)
-    
+
     return device_dict
 
 
-async def _create_device(dtype: T, uri: str = None, namespace: Dict[str, T] = None, **kwargs) -> T:
+async def _create_device(
+    dtype: T, uri: str = None, namespace: Dict[str, T] = None, **kwargs
+) -> T:
     """
     Asynchronous method to create a device.
 
@@ -128,7 +142,9 @@ async def _create_device(dtype: T, uri: str = None, namespace: Dict[str, T] = No
     # Get the list of kwargs expected by the device constructor
     expected_kwargs = dtype.__init__.__code__.co_varnames
     # Only pass the kwargs that are expected by the constructor
-    good_kwargs = {key: value for key, value in kwargs_c.items() if key in expected_kwargs}
+    good_kwargs = {
+        key: value for key, value in kwargs_c.items() if key in expected_kwargs
+    }
     if "md" in expected_kwargs:
         device_handles_md = True
 
@@ -162,7 +178,9 @@ async def _parse_arg(parent: str, arg: str, namespace: Dict[str, T]) -> Any:
     return arg
 
 
-async def _parse_kwarg(parent: str, key: str, value: Any, namespace: Dict[str, T]) -> Any:
+async def _parse_kwarg(
+    parent: str, key: str, value: Any, namespace: Dict[str, T]
+) -> Any:
 
     if key in ["driver", "uri", "name", "md"]:
         return value
@@ -237,7 +255,9 @@ async def _get_sub_device(parent: str, arg: str, namespace: Dict[str, T]) -> T:
             if arg_exists:
                 waiting_for_dependent_device = False
             if loops >= DEVICE_INIT_TIMEOUT:
-                raise TimeoutError(f"Error: {arg} not initialized" f".Check for circular dependencies.")
+                raise TimeoutError(
+                    f"Error: {arg} not initialized" f".Check for circular dependencies."
+                )
 
         if arg_exists:
             async with RESOURCE_LOCK:
@@ -306,7 +326,9 @@ def _check_circular_dependencies(devlist: Dict) -> None:
         while stack:
             current = stack[-1]
             if current in visited:
-                raise ValueError(f"Circular dependency found: {device} depends on" f" itself.")
+                raise ValueError(
+                    f"Circular dependency found: {device} depends on" f" itself."
+                )
             visited.add(current)
             for dependent in dependencies[current]:
                 if dependent not in visited:
@@ -320,7 +342,7 @@ def _get_device_type(type_string: str) -> T:
     try:
         try:
             module_name, class_name = type_string.rsplit(".", 1)
-        except ValueError as _:
+        except ValueError:
             module_name, class_name = type_string
         module = importlib.import_module(module_name)
         device_type = getattr(module, class_name)
@@ -352,7 +374,10 @@ def _check_valid_device_names(devlist: Dict) -> None:
             print(f"Error: {exc}. Device {device} is missing a 'name' kwarg.")
             raise
         if device != device_info["kwargs"]["name"]:
-            raise ValueError(f"Error: Device key {device} must be equal to the 'name'" f" kwarg of the device.")
+            raise ValueError(
+                f"Error: Device key {device} must be equal to the 'name'"
+                f" kwarg of the device."
+            )
 
 
 def get_device_list(device_uri_path: str = None) -> Dict[str, Dict[str, Any]]:

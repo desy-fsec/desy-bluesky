@@ -6,9 +6,7 @@ import time
 
 from bluesky.protocols import Subscribable, Callback, Reading
 
-from ophyd_async.core import (
-    SignalR
-)
+from ophyd_async.core import SignalR
 from ophyd_async.tango.core import TangoReadable, TangoPolling
 from ophyd_async.core._utils import LazyMock, DEFAULT_TIMEOUT
 from tango import DevState
@@ -29,27 +27,30 @@ class FSECReadableDevice(TangoReadable):
     def __repr__(self):
         return self.name
 
+
 class FSECSubscribable(Subscribable):
 
     async def connect(
-            self,
-            mock: bool | LazyMock = False,
-            timeout: float = DEFAULT_TIMEOUT,
-            force_reconnect: bool = False,
+        self,
+        mock: bool | LazyMock = False,
+        timeout: float = DEFAULT_TIMEOUT,
+        force_reconnect: bool = False,
     ) -> None:
-        await super().connect(mock=mock, timeout=timeout, force_reconnect=force_reconnect)
+        await super().connect(
+            mock=mock, timeout=timeout, force_reconnect=force_reconnect
+        )
         try:
             self._callbacks: list[Callback] = []
             self._processing_callbacks = False
             self._subscribed_signals = {}
-            hints = getattr(self, 'hints', {})
-            fields = hints.get('fields', [])
+            hints = getattr(self, "hints", {})
+            fields = hints.get("fields", [])
             for signal_name in fields:
-                parts = signal_name.split('-')
+                parts = signal_name.split("-")
                 child = self
                 for component in parts[1:]:
                     child = getattr(child, component)
-                if hasattr(child, 'subscribe'):
+                if hasattr(child, "subscribe"):
                     child.subscribe(self._trigger_callbacks)
                     self._subscribed_signals[child.name] = child
         except Exception as e:

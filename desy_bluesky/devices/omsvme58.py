@@ -4,7 +4,7 @@ from typing import Annotated as A
 
 import asyncio
 
-from bluesky.protocols import Callback, Movable, Stoppable, SyncOrAsync, Subscribable, T
+from bluesky.protocols import Movable, Stoppable, SyncOrAsync
 
 from ophyd_async.core import (
     AsyncStatus,
@@ -19,7 +19,6 @@ from ophyd_async.core import (
     Ignore,
 )
 from ophyd_async.tango.core import TangoPolling
-from ophyd_async.core._utils import LazyMock
 
 
 from .fsec_readable_device import FSECReadableDevice, FSECSubscribable
@@ -64,7 +63,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     def stop(self, success: bool = False) -> SyncOrAsync:
         self._set_success = success
         return self.StopMove.trigger()
-    
+
 
 class OmsVME58MotorNoEncoder(OmsVME58Motor):
     Position: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
@@ -88,6 +87,7 @@ class OmsVME58MotorEncoder(OmsVME58Motor):
     PositionEncoder: A[SignalR[float], Format.UNCACHED_SIGNAL]
     PositionEncoderRaw: A[SignalR[float], Format.UNCACHED_SIGNAL]
 
+
 class PolledOmsVME58MotorEncoder(FSECSubscribable, OmsVME58Motor):
     Position: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
     SlewRate: A[SignalRW[int], Format.CONFIG_SIGNAL]
@@ -98,9 +98,12 @@ class PolledOmsVME58MotorEncoder(FSECSubscribable, OmsVME58Motor):
     PositionEncoder: A[SignalR[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
     PositionEncoderRaw: A[SignalR[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
 
+
 class PolledOmsVME58MotorNoEncoder(FSECSubscribable, OmsVME58Motor):
     Position: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
-    StepPositionController: A[SignalRW[int], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
+    StepPositionController: A[
+        SignalRW[int], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)
+    ]
     SlewRate: A[SignalRW[int], Format.CONFIG_SIGNAL]
     SlewRateMax: A[SignalRW[int], Format.CONFIG_SIGNAL]
     Conversion: A[SignalRW[float], Format.CONFIG_SIGNAL]

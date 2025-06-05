@@ -2,12 +2,13 @@ import bluesky.plan_stubs as bps
 from bluesky.protocols import Readable, Movable
 from typing import Any
 
+
 def ramp(
     positioner: Movable,
     readables: list[Readable],
     setpoint: float,
     sample_period: float,
-    md: dict[str, Any] | None = None
+    md: dict[str, Any] | None = None,
 ):
     """
     Perform a ramping motion of a positioner while periodically reading detectors.
@@ -26,7 +27,7 @@ def ramp(
     Yields:
         Msg: Bluesky messages for controlling the RunEngine.
     """
-    
+
     _md = {
         "plan_name": "ramp_and_read",
         "motors": [positioner.name],
@@ -41,10 +42,10 @@ def ramp(
 
     if md is not None:
         _md.update(md)
-    
+
     yield from bps.open_run(md=_md)
     yield from bps.checkpoint()
-    move_status = yield from bps.abs_set(positioner, setpoint, group='ramp', wait=False)
+    move_status = yield from bps.abs_set(positioner, setpoint, group="ramp", wait=False)
     readables_and_positioner = [positioner] + readables
     sample_period = float(sample_period)
     while not move_status.done:

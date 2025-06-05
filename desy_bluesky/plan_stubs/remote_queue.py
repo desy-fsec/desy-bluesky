@@ -33,9 +33,7 @@ def close(rm: UnionREManagerAPI, lock_key: str | None = None):
     generator
         A generator that yields a Msg object.
     """
-    return (
-        yield Msg(REMOTE_QUEUE_COMMAND, rm, "close", [], {"lock_key": lock_key})
-    )
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "close", [], {"lock_key": lock_key}))
 
 
 def user(rm: UnionREManagerAPI, name: str | None = None):
@@ -96,9 +94,7 @@ def set_user_name_to_login_name(rm: UnionREManagerAPI):
     generator
         A generator that yields a Msg object.
     """
-    return (
-        yield Msg(REMOTE_QUEUE_COMMAND, rm, "set_user_name_to_login_name", [], {})
-    )
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "set_user_name_to_login_name", [], {}))
 
 
 def status(rm: UnionREManagerAPI, reload: bool = False):
@@ -592,9 +588,7 @@ def plans_existing(rm: UnionREManagerAPI, reload: bool = False):
         A generator that yields a Msg object.
     """
     return (
-        yield Msg(
-            REMOTE_QUEUE_COMMAND, rm, "plans_existing", [], {"reload": reload}
-        )
+        yield Msg(REMOTE_QUEUE_COMMAND, rm, "plans_existing", [], {"reload": reload})
     )
 
 
@@ -617,9 +611,7 @@ def devices_existing(rm: UnionREManagerAPI, reload: bool = False):
         A generator that yields a Msg object.
     """
     return (
-        yield Msg(
-            REMOTE_QUEUE_COMMAND, rm, "devices_existing", [], {"reload": reload}
-        )
+        yield Msg(REMOTE_QUEUE_COMMAND, rm, "devices_existing", [], {"reload": reload})
     )
 
 
@@ -641,9 +633,7 @@ def queue_get(rm: UnionREManagerAPI, reload: bool = False):
     generator
         A generator that yields a Msg object.
     """
-    return (
-        yield Msg(REMOTE_QUEUE_COMMAND, rm, "queue_get", [], {"reload": reload})
-    )
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "queue_get", [], {"reload": reload}))
 
 
 def queue_clear(rm: UnionREManagerAPI, lock_key: str | None = None):
@@ -665,9 +655,7 @@ def queue_clear(rm: UnionREManagerAPI, lock_key: str | None = None):
         A generator that yields a Msg object.
     """
     return (
-        yield Msg(
-            REMOTE_QUEUE_COMMAND, rm, "queue_clear", [], {"lock_key": lock_key}
-        )
+        yield Msg(REMOTE_QUEUE_COMMAND, rm, "queue_clear", [], {"lock_key": lock_key})
     )
 
 
@@ -857,9 +845,7 @@ def item_get(
         A generator that yields a Msg object.
     """
     return (
-        yield Msg(
-            REMOTE_QUEUE_COMMAND, rm, "item_get", [], {"pos": pos, "uid": uid}
-        )
+        yield Msg(REMOTE_QUEUE_COMMAND, rm, "item_get", [], {"pos": pos, "uid": uid})
     )
 
 
@@ -1107,9 +1093,7 @@ def queue_start(rm: UnionREManagerAPI, lock_key: str | None = None):
         A generator that yields a Msg object.
     """
     return (
-        yield Msg(
-            REMOTE_QUEUE_COMMAND, rm, "queue_start", [], {"lock_key": lock_key}
-        )
+        yield Msg(REMOTE_QUEUE_COMMAND, rm, "queue_start", [], {"lock_key": lock_key})
     )
 
 
@@ -1132,9 +1116,7 @@ def queue_stop(rm: UnionREManagerAPI, lock_key: str | None = None):
         A generator that yields a Msg object.
     """
     return (
-        yield Msg(
-            REMOTE_QUEUE_COMMAND, rm, "queue_stop", [], {"lock_key": lock_key}
-        )
+        yield Msg(REMOTE_QUEUE_COMMAND, rm, "queue_stop", [], {"lock_key": lock_key})
     )
 
 
@@ -1233,9 +1215,7 @@ def history_get(rm: UnionREManagerAPI, reload: bool = False):
     generator
         A generator that yields a Msg object.
     """
-    return (
-        yield Msg(REMOTE_QUEUE_COMMAND, rm, "history_get", [], {"reload": reload})
-    )
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "history_get", [], {"reload": reload}))
 
 
 def history_clear(rm: UnionREManagerAPI, lock_key: str | None = None):
@@ -1257,9 +1237,7 @@ def history_clear(rm: UnionREManagerAPI, lock_key: str | None = None):
         A generator that yields a Msg object.
     """
     return (
-        yield Msg(
-            REMOTE_QUEUE_COMMAND, rm, "history_clear", [], {"lock_key": lock_key}
-        )
+        yield Msg(REMOTE_QUEUE_COMMAND, rm, "history_clear", [], {"lock_key": lock_key})
     )
 
 
@@ -1463,9 +1441,7 @@ def lock_info(rm: UnionREManagerAPI, lock_key: str | None = None, reload: bool =
         A generator that yields a Msg object.
     """
     return (
-        yield Msg(
-            REMOTE_QUEUE_COMMAND, rm, "lock_info", [lock_key], {"reload": reload}
-        )
+        yield Msg(REMOTE_QUEUE_COMMAND, rm, "lock_info", [lock_key], {"reload": reload})
     )
 
 
@@ -1529,9 +1505,7 @@ def get_default_lock_key(rm: UnionREManagerAPI, new_key: bool = False):
     generator
         A generator that yields a Msg object.
     """
-    return (
-        yield Msg(REMOTE_QUEUE_COMMAND, rm, "get_default_lock_key", [new_key], {})
-    )
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "get_default_lock_key", [new_key], {}))
 
 
 def set_default_lock_key(rm: UnionREManagerAPI, lock_key: str):
@@ -1552,9 +1526,7 @@ def set_default_lock_key(rm: UnionREManagerAPI, lock_key: str):
     generator
         A generator that yields a Msg object.
     """
-    return (
-        yield Msg(REMOTE_QUEUE_COMMAND, rm, "set_default_lock_key", [lock_key], {})
-    )
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "set_default_lock_key", [lock_key], {}))
 
 
 def default_lock_key_path(rm: UnionREManagerAPI, path: str):
@@ -1575,9 +1547,7 @@ def default_lock_key_path(rm: UnionREManagerAPI, path: str):
     generator
         A generator that yields a Msg object.
     """
-    return (
-        yield Msg(REMOTE_QUEUE_COMMAND, rm, "default_lock_key_path", [path], {})
-    )
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "default_lock_key_path", [path], {}))
 
 
 def script_upload(
@@ -1590,7 +1560,7 @@ def script_upload(
 ):
     """
     Upload a script to the RE Manager.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1639,7 +1609,7 @@ def function_execute(
 ):
     """
     Execute a function on the RE Manager.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1681,7 +1651,7 @@ def function_execute(
 def task_status(rm: UnionREManagerAPI, task_uid: str | Iterable[str]):
     """
     Get the status of a task.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1702,7 +1672,7 @@ def task_status(rm: UnionREManagerAPI, task_uid: str | Iterable[str]):
 def task_result(rm: UnionREManagerAPI, task_uid: str):
     """
     Get the result of a task.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1729,7 +1699,7 @@ def wait_for_completed_task(
 ):
     """
     Wait for a task to complete.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1768,7 +1738,7 @@ def wait_for_completed_task(
 def re_runs(rm: UnionREManagerAPI, option: str | None = None, reload: bool = False):
     """
     Get the list of completed runs.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1786,9 +1756,7 @@ def re_runs(rm: UnionREManagerAPI, option: str | None = None, reload: bool = Fal
         A generator that yields a Msg object.
     """
     return (
-        yield Msg(
-            REMOTE_QUEUE_COMMAND, rm, "re_runs", [option], {"reload": reload}
-        )
+        yield Msg(REMOTE_QUEUE_COMMAND, rm, "re_runs", [option], {"reload": reload})
     )
 
 
@@ -1797,7 +1765,7 @@ def re_pause(
 ):
     """
     Pause the currently running plan.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1824,7 +1792,7 @@ def re_pause(
 def re_resume(rm: UnionREManagerAPI, lock_key: str | None = None):
     """
     Resume the currently paused plan.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1840,16 +1808,14 @@ def re_resume(rm: UnionREManagerAPI, lock_key: str | None = None):
         A generator that yields a Msg object.
     """
     return (
-        yield Msg(
-            REMOTE_QUEUE_COMMAND, rm, "re_resume", [], {"lock_key": lock_key}
-        )
+        yield Msg(REMOTE_QUEUE_COMMAND, rm, "re_resume", [], {"lock_key": lock_key})
     )
 
 
 def re_stop(rm: UnionREManagerAPI, lock_key: str | None = None):
     """
     Stop the currently running plan.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1864,15 +1830,13 @@ def re_stop(rm: UnionREManagerAPI, lock_key: str | None = None):
     generator
         A generator that yields a Msg object.
     """
-    return (
-        yield Msg(REMOTE_QUEUE_COMMAND, rm, "re_stop", [], {"lock_key": lock_key})
-    )
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "re_stop", [], {"lock_key": lock_key}))
 
 
 def re_abort(rm: UnionREManagerAPI, lock_key: str | None = None):
     """
     Abort the currently running plan.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1887,15 +1851,13 @@ def re_abort(rm: UnionREManagerAPI, lock_key: str | None = None):
     generator
         A generator that yields a Msg object.
     """
-    return (
-        yield Msg(REMOTE_QUEUE_COMMAND, rm, "re_abort", [], {"lock_key": lock_key})
-    )
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "re_abort", [], {"lock_key": lock_key}))
 
 
 def re_halt(rm: UnionREManagerAPI, lock_key: str | None = None):
     """
     Halt the currently running plan.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1910,9 +1872,7 @@ def re_halt(rm: UnionREManagerAPI, lock_key: str | None = None):
     generator
         A generator that yields a Msg object.
     """
-    return (
-        yield Msg(REMOTE_QUEUE_COMMAND, rm, "re_halt", [], {"lock_key": lock_key})
-    )
+    return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "re_halt", [], {"lock_key": lock_key}))
 
 
 def kernel_interrupt(
@@ -1923,7 +1883,7 @@ def kernel_interrupt(
 ):
     """
     Interrupt the IPython kernel.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1960,7 +1920,7 @@ def kernel_interrupt(
 def auth_method(rm: UnionREManagerAPI):
     """
     Get the authorization method.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -1979,7 +1939,7 @@ def auth_method(rm: UnionREManagerAPI):
 def auth_key(rm: UnionREManagerAPI):
     """
     Get the authorization key.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2003,7 +1963,7 @@ def set_authorization_key(
 ):
     """
     Set the authorization key.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2041,7 +2001,7 @@ def login(
 ):
     """
     Log in to the RE Manager.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2074,7 +2034,7 @@ def login(
 def session_refresh(rm: UnionREManagerAPI, refresh_token: str | None = None):
     """
     Refresh the session.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2108,7 +2068,7 @@ def session_revoke(
 ):
     """
     Revoke a session.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2147,7 +2107,7 @@ def apikey_new(
 ):
     """
     Generate a new API key.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2187,7 +2147,7 @@ def apikey_new(
 def apikey_info(rm: UnionREManagerAPI, api_key: str | None = None):
     """
     Get information about an API key.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2203,9 +2163,7 @@ def apikey_info(rm: UnionREManagerAPI, api_key: str | None = None):
         A generator that yields a Msg object.
     """
     return (
-        yield Msg(
-            REMOTE_QUEUE_COMMAND, rm, "apikey_info", [], {"api_key": api_key}
-        )
+        yield Msg(REMOTE_QUEUE_COMMAND, rm, "apikey_info", [], {"api_key": api_key})
     )
 
 
@@ -2217,7 +2175,7 @@ def apikey_delete(
 ):
     """
     Delete an API key.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2250,7 +2208,7 @@ def apikey_delete(
 def whoami(rm: UnionREManagerAPI, token: str | None = None, api_key: str | None = None):
     """
     Get information about the current user.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2277,7 +2235,7 @@ def whoami(rm: UnionREManagerAPI, token: str | None = None, api_key: str | None 
 def principal_info(rm: UnionREManagerAPI, principal_uid: str | None = None):
     """
     Get information about a principal.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2308,7 +2266,7 @@ def api_scopes(
 ):
     """
     Get the API scopes.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2339,7 +2297,7 @@ def api_scopes(
 def logout(rm: UnionREManagerAPI):
     """
     Log out from the RE Manager.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2354,10 +2312,11 @@ def logout(rm: UnionREManagerAPI):
     """
     return (yield Msg(REMOTE_QUEUE_COMMAND, rm, "logout", [], {}))
 
+
 def console_monitor_enabled(rm: UnionREManagerAPI):
     """
     Enable/disable console monitor.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2374,10 +2333,11 @@ def console_monitor_enabled(rm: UnionREManagerAPI):
     """
     return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "enabled", [], {}))
 
+
 def console_monitor_enable(rm: UnionREManagerAPI):
     """
     Enable console monitor.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2392,10 +2352,11 @@ def console_monitor_enable(rm: UnionREManagerAPI):
     """
     return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "enable", [], {}))
 
+
 def console_monitor_disable(rm: UnionREManagerAPI):
     """
     Disable console monitor.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2410,10 +2371,11 @@ def console_monitor_disable(rm: UnionREManagerAPI):
     """
     return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "disable", [], {}))
 
+
 def console_monitor_disable_wait(rm: UnionREManagerAPI, timeout: float = 2):
     """
     Disable console monitor and wait for completion.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2428,12 +2390,21 @@ def console_monitor_disable_wait(rm: UnionREManagerAPI, timeout: float = 2):
     generator
         A generator that yields a Msg object.
     """
-    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "disable_wait", [], {"timeout": timeout}))
+    return (
+        yield Msg(
+            REMOTE_QUEUE_COMMAND,
+            rm.console_monitor,
+            "disable_wait",
+            [],
+            {"timeout": timeout},
+        )
+    )
+
 
 def console_monitor_clear(rm: UnionREManagerAPI):
     """
     Clear console monitor.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2448,10 +2419,11 @@ def console_monitor_clear(rm: UnionREManagerAPI):
     """
     return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "clear", [], {}))
 
+
 def console_monitor_next_msg(rm: UnionREManagerAPI, timeout: float | None = None):
     """
     Get the next message from the console monitor.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2466,13 +2438,22 @@ def console_monitor_next_msg(rm: UnionREManagerAPI, timeout: float | None = None
     generator
         A generator that yields a Msg object.
     """
-    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "next_msg", [], {"timeout": timeout}))
+    return (
+        yield Msg(
+            REMOTE_QUEUE_COMMAND,
+            rm.console_monitor,
+            "next_msg",
+            [],
+            {"timeout": timeout},
+        )
+    )
+
 
 def console_monitor_text_max_lines(rm: UnionREManagerAPI, max_lines: int | None = None):
     """
     Get/set the maximum size of the text buffer. The new buffer size is applied to the existing buffer,
     removing extra messages if necessary.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2487,12 +2468,17 @@ def console_monitor_text_max_lines(rm: UnionREManagerAPI, max_lines: int | None 
     generator
         A generator that yields a Msg object.
     """
-    return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "text_max_lines", [max_lines], {}))
+    return (
+        yield Msg(
+            REMOTE_QUEUE_COMMAND, rm.console_monitor, "text_max_lines", [max_lines], {}
+        )
+    )
+
 
 def console_monitor_text_uid(rm: UnionREManagerAPI):
     """
     Get the UID of the text buffer.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2507,10 +2493,11 @@ def console_monitor_text_uid(rm: UnionREManagerAPI):
     """
     return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "text_uid", [], {}))
 
+
 def console_monitor_text(rm: UnionREManagerAPI, nlines: int | None = None):
     """
     Get the text buffer.
-    
+
     https://blueskyproject.io/bluesky-queueserver-api/api-reference.html
 
     Parameters
@@ -2526,9 +2513,3 @@ def console_monitor_text(rm: UnionREManagerAPI, nlines: int | None = None):
         A generator that yields a Msg object.
     """
     return (yield Msg(REMOTE_QUEUE_COMMAND, rm.console_monitor, "text", [nlines], {}))
-    
-    
-
-    
-
-

@@ -3,11 +3,12 @@ import time
 import bluesky.plan_stubs as bps
 from bluesky.protocols import Readable
 
+
 def dwell(
     readables: list[Readable],
     dwell_time: float,
     sample_period: float,
-    md: dict[str, Any] | None = None
+    md: dict[str, Any] | None = None,
 ):
     """
     Dwell at the current position and read the readable devices at the specified sample rate.
@@ -36,7 +37,7 @@ def dwell(
 
     if md is not None:
         _md.update(md)
-    
+
     if sample_period is not None:
         sample_period = float(sample_period)
         yield from bps.open_run(md=_md)
@@ -51,4 +52,3 @@ def dwell(
                 break
         yield from bps.trigger_and_read(readables)
         yield from bps.close_run()
-    

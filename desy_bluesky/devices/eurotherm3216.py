@@ -68,7 +68,9 @@ class Eurotherm3216(FSECSubscribable, FSECReadableDevice, Movable, Stoppable):
         name: str = "",
     ) -> None:
         with self.add_children_as_readables(Format.CONFIG_SIGNAL):
-            self.setpoint_tolerance = soft_signal_rw(float, 2.0, "setpoint_tolerance", "C")
+            self.setpoint_tolerance = soft_signal_rw(
+                float, 2.0, "setpoint_tolerance", "C"
+            )
         super().__init__(trl=trl, name=name)
         self._set_success = False
 

@@ -14,7 +14,8 @@ def sanitize_input(input_string: str) -> str:
     input_string = input_string.lower()
     if not re.match("^[a-z0-9_]*$", input_string):
         raise ValueError(
-            f"Invalid input: {input_string}. Input should be alphanumeric " f"and can include underscores."
+            f"Invalid input: {input_string}. Input should be alphanumeric "
+            f"and can include underscores."
         )
 
     return input_string

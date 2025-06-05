@@ -3,13 +3,14 @@ from bluesky.protocols import Readable, Movable
 from typing import Dict, Any, List
 import time
 
+
 def ramp_dwell_read(
     positioner: Movable,
     readables: List[Readable],
     setpoint: float,
     dwell_time: float,
     sample_period: float | None = None,
-    md: Dict[str, Any] | None = None
+    md: Dict[str, Any] | None = None,
 ):
     """
     Ramp the positioner to the setpoints and read the detectors at the specified sample rate.
@@ -45,25 +46,22 @@ def ramp_dwell_read(
     if md is not None:
         _md.update(md)
 
-    ramp_status = yield from bps.abs_set(positioner, setpoint, group='ramp', wait=False)
+    ramp_status = yield from bps.abs_set(positioner, setpoint, group="ramp", wait=False)
     readables_and_positioner = [positioner] + readables
-    
+
     if sample_period is not None:
         sample_period = float(sample_period)
         yield from bps.open_run(md=_md)
         while not ramp_status.done:
             yield from bps.trigger_and_read(readables_and_positioner)
             yield from bps.sleep(sample_period)
-        
+
         start_of_dwell = time.time()
         while time.time() - start_of_dwell < dwell_time:
             yield from bps.trigger_and_read(readables_and_positioner)
             yield from bps.sleep(sample_period)
         yield from bps.close_run()
-        
+
     else:
-        yield from bps.wait('ramp')
+        yield from bps.wait("ramp")
         yield from bps.sleep(dwell_time)
-    
-    
-    

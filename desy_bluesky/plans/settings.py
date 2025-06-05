@@ -1,23 +1,21 @@
 from typing import List
-from ophyd_async.core import (
-    YamlSettingsProvider,
-    Device
-)
+from ophyd_async.core import YamlSettingsProvider, Device
 from ophyd_async.plan_stubs import (
     retrieve_settings,
     store_settings,
     apply_settings,
     apply_settings_if_different,
-    get_current_settings
+    get_current_settings,
 )
 import os
 
 __all__ = [
-    'save_device_settings',
-    'load_device_settings',
-    'set_provider',
-    'use_settings'
+    "save_device_settings",
+    "load_device_settings",
+    "set_provider",
+    "use_settings",
 ]
+
 
 def save_device_settings(provider: YamlSettingsProvider | str, devices: List[Device]):
     """
@@ -52,11 +50,13 @@ def load_device_settings(provider: YamlSettingsProvider | str, devices: List[Dev
     """
     if isinstance(provider, str):
         provider = YamlSettingsProvider(provider)
-        
+
     for device in devices:
         current_settings = yield from get_current_settings(device, True)
         new_settings = yield from retrieve_settings(provider, device.name, device, True)
-        yield from apply_settings_if_different(new_settings, apply_settings, current_settings)
+        yield from apply_settings_if_different(
+            new_settings, apply_settings, current_settings
+        )
 
 
 def set_provider(provider: YamlSettingsProvider | str):
@@ -70,18 +70,22 @@ def set_provider(provider: YamlSettingsProvider | str):
     """
     if isinstance(provider, str):
         provider = YamlSettingsProvider(provider)
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             # Add the provider to the function's local namespace
-            func.__globals__['provider'] = provider
+            func.__globals__["provider"] = provider
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
 def use_settings(provider: YamlSettingsProvider | str):
     """
-    Plan decorator which will apply settings from a provider before a plan is run and then reset the settings after the plan is run.
+    Plan decorator which will apply settings from a provider before a plan is run and then reset the settings after the
+    plan is run.
 
     Parameters
     ----------
@@ -90,7 +94,7 @@ def use_settings(provider: YamlSettingsProvider | str):
     """
     if isinstance(provider, str):
         provider = YamlSettingsProvider(provider)
-    
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             def inner_wrapper():
@@ -99,23 +103,34 @@ def use_settings(provider: YamlSettingsProvider | str):
                 for arg in kwargs.values():
                     if isinstance(arg, Device):
                         devices.add(arg)
-                
+
                 current_settings = {}
                 new_settings = {}
-                
+
                 for device in devices:
-                    current_settings[device.name] = yield from get_current_settings(device, True)
-                    new_settings[device.name] = yield from retrieve_settings(provider, device.name, device, True)
-                    yield from apply_settings_if_different(new_settings[device.name], apply_settings, current_settings[device.name])
-                
+                    current_settings[device.name] = yield from get_current_settings(
+                        device, True
+                    )
+                    new_settings[device.name] = yield from retrieve_settings(
+                        provider, device.name, device, True
+                    )
+                    yield from apply_settings_if_different(
+                        new_settings[device.name],
+                        apply_settings,
+                        current_settings[device.name],
+                    )
+
                 def _reset_devices(_settings, _devices):
                     for device in _devices:
-                        yield from apply_settings_if_different(_settings[device.name], apply_settings)
-                
+                        yield from apply_settings_if_different(
+                            _settings[device.name], apply_settings
+                        )
+
                 yield from func(*args, **kwargs)
                 yield from _reset_devices(current_settings, devices)
-            
+
             return inner_wrapper()
-        
+
         return wrapper
+
     return decorator
