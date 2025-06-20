@@ -8,6 +8,8 @@ from ophyd_async.core import (
     StandardReadableFormat as Format,
 )
 
+from ophyd_async.tango.core import TangoPolling
+
 from .fsec_readable_device import FSECReadableDevice, FSECSubscribable
 
 
@@ -20,6 +22,6 @@ class SIS3820Counter(FSECReadableDevice):
         await self.Reset.trigger()
 
 class SIS3820Subscribable(FSECSubscribable, SIS3820Counter):
-    Counts: A[SignalRW[float], Format.HINTED_SIGNAL]
+    Counts: A[SignalRW[float], Format.HINTED_SIGNAL, TangoPolling(0.5)]
     Offset: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Reset: SignalX
