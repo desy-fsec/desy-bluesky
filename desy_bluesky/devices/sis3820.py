@@ -8,10 +8,9 @@ from ophyd_async.core import (
     StandardReadableFormat as Format,
 )
 
-from .fsec_readable_device import FSECReadableDevice
+from .fsec_readable_device import FSECReadableDevice, FSECSubscribable
 
 
-# --------------------------------------------------------------------
 class SIS3820Counter(FSECReadableDevice):
     Counts: A[SignalRW[float], Format.HINTED_UNCACHED_SIGNAL]
     Offset: A[SignalRW[float], Format.CONFIG_SIGNAL]
@@ -19,3 +18,8 @@ class SIS3820Counter(FSECReadableDevice):
 
     async def reset(self):
         await self.Reset.trigger()
+
+class SIS3820Subscribable(FSECSubscribable):
+    Counts: A[SignalRW[float], Format.HINTED_SIGNAL]
+    Offset: A[SignalRW[float], Format.CONFIG_SIGNAL]
+    Reset: SignalX

@@ -7,7 +7,7 @@ from .omsvme58 import (
     OmsVME58MotorNoEncoder,
     PolledOmsVME58MotorNoEncoder,
 )
-from .sis3820 import SIS3820Counter
+from .sis3820 import SIS3820Counter, SIS3820Subscribable
 from .undulator import Undulator
 from .vc_counter import VcCounter
 from .vm_motor import VmMotor
@@ -26,6 +26,7 @@ __all__ = [
     "OmsVME58MotorNoEncoder",
     "PolledOmsVME58MotorNoEncoder",
     "SIS3820Counter",
+    "SIS3820Subscribable",
     "Undulator",
     "VcCounter",
     "VmMotor",
