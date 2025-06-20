@@ -19,7 +19,7 @@ class SIS3820Counter(FSECReadableDevice):
     async def reset(self):
         await self.Reset.trigger()
 
-class SIS3820Subscribable(FSECSubscribable):
+class SIS3820Subscribable(FSECSubscribable, SIS3820Counter):
     Counts: A[SignalRW[float], Format.HINTED_SIGNAL]
     Offset: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Reset: SignalX
