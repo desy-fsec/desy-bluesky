@@ -1,16 +1,19 @@
 from __future__ import annotations
 
+from typing import Annotated as A
+
 from ophyd_async.core import (
     SignalX,
     SignalRW,
     SignalR,
-    Array1D
+    Array1D,
+    StandardReadableFormat as Format
 )
 
 from .fsec_readable_device import FSECReadableDevice
 
 class Dante(FSECReadableDevice):
-    ConfigFilePath: SignalRW[str]
+    ConfigFilePath: A[SignalRW[str], Format.CONFIG_SIGNAL]
     Counts00: SignalR[Array1D[int]]
     Counts01: SignalR[Array1D[int]]
     Counts02: SignalR[Array1D[int]]
@@ -19,28 +22,28 @@ class Dante(FSECReadableDevice):
     Data01: SignalR[Array1D[int]]
     Data02: SignalR[Array1D[int]]
     Data03: SignalR[Array1D[int]]
-    FileDir: SignalRW[str]
-    FilePrefix: SignalRW[str]
-    FileStartNum: SignalRW[int]
+    FileDir: A[SignalRW[str], Format.CONFIG_SIGNAL]
+    FilePrefix: A[SignalRW[str], Format.CONFIG_SIGNAL]
+    FileStartNum: A[SignalRW[int], Format.CONFIG_SIGNAL]
     FrameCounter: SignalR[int]
-    FramesPerFile: SignalRW[int]
-    GatingMode: SignalRW[int]
-    ICR00: SignalR[int]
-    ICR01: SignalR[int]
-    ICR02: SignalR[int]
-    ICR03: SignalR[int]
+    FramesPerFile: A[SignalRW[int], Format.CONFIG_SIGNAL]
+    GatingMode: A[SignalRW[int], Format.CONFIG_SIGNAL]
+    ICR00: A[SignalR[int], Format.HINTED_UNCACHED_SIGNAL]
+    ICR01: A[SignalR[int], Format.HINTED_UNCACHED_SIGNAL]
+    ICR02: A[SignalR[int], Format.HINTED_UNCACHED_SIGNAL]
+    ICR03: A[SignalR[int], Format.HINTED_UNCACHED_SIGNAL]
     Init: SignalX
-    NbFrames: SignalRW[int]
-    OCR00: SignalR[int]
-    OCR01: SignalR[int]
-    OCR02: SignalR[int]
-    OCR03: SignalR[int]
+    NbFrames: A[SignalRW[int], Format.CONFIG_SIGNAL]
+    OCR00: A[SignalR[int], Format.HINTED_UNCACHED_SIGNAL]
+    OCR01: A[SignalR[int], Format.HINTED_UNCACHED_SIGNAL]
+    OCR02: A[SignalR[int], Format.HINTED_UNCACHED_SIGNAL]
+    OCR03: A[SignalR[int], Format.HINTED_UNCACHED_SIGNAL]
     ROIs00: SignalR[Array1D[int]]
     ROIs01: SignalR[Array1D[int]]
     ROIs02: SignalR[Array1D[int]]
     ROIs03: SignalR[Array1D[int]]
-    SaveData: SignalRW[bool]
+    SaveData: A[SignalRW[bool], Format.CONFIG_SIGNAL]
     StartAcq: SignalX
     Status: SignalR[str]
     StopAcq: SignalX
-    TimePerPoint: SignalRW[int]
+    TimePerPoint: A[SignalRW[int], Format.CONFIG_SIGNAL]

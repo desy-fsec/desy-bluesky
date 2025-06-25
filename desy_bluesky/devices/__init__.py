@@ -16,6 +16,7 @@ from .gated_array import GatedArray
 from .fsec_readable_device import FSECReadableDevice, FSECSubscribable
 from .eurotherm3216 import Eurotherm3216
 from .device_init import create_devices, get_device_list
+from .dante import Dante
 
 __all__ = [
     "DGG2Timer",
@@ -37,4 +38,5 @@ __all__ = [
     "Eurotherm3216",
     "create_devices",
     "get_device_list",
+    "Dante"
 ]
