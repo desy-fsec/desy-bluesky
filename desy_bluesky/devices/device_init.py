@@ -42,7 +42,7 @@ from bluesky_queueserver import is_ipython_mode
 
 RESOURCE_LOCK = asyncio.Lock()
 DEVICES_TO_BE_CREATED = []
-DEVICE_INIT_TIMEOUT = 10
+DEVICE_INIT_TIMEOUT = 30
 
 T = TypeVar("T")
 
