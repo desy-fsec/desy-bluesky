@@ -42,13 +42,13 @@ from bluesky_queueserver import is_ipython_mode
 
 RESOURCE_LOCK = asyncio.Lock()
 DEVICES_TO_BE_CREATED = []
-DEVICE_INIT_TIMEOUT = 10
+DEVICE_INIT_TIMEOUT = 30
 
 T = TypeVar("T")
 
 
 async def create_devices(
-    devlist: Dict[str, Dict[str, Any]], namespace: Dict[str, T] | None = None
+    devlist: Dict[str, Dict[str, Any]], namespace: Dict[str, T] | None = None, timeout: int = None
 ) -> Dict[str, Any]:
     """
     Create devices asynchronously from a dictionary of device types and their URIs.
@@ -56,6 +56,7 @@ async def create_devices(
     :param devlist: Dictionary of device types and their URIs
     :param namespace: Namespace to add the devices to. This is usually the global
                       namespace of the calling module or startup script.
+    :param timeout: Set the global device timeout (s).
 
     """
     if not devlist:
@@ -74,6 +75,9 @@ async def create_devices(
     print("DEVICES TO BE CREATED: ", DEVICES_TO_BE_CREATED)
     print("Creating devices...")
 
+    if timeout is not None:
+        DEVICE_INIT_TIMEOUT = timeout
+    
     for _, device_info in devlist.items():
         try:
             async with RESOURCE_LOCK:
