@@ -8,6 +8,7 @@ from bluesky.protocols import (
     Movable,
     Stoppable,
     SyncOrAsync,
+    Preparable,
 )
 
 from ophyd_async.core import (
@@ -29,7 +30,7 @@ from ophyd_async.tango.core import (
 from .fsec_readable_device import FSECReadableDevice, FSECSubscribable
 
 
-class Eurotherm3216(FSECSubscribable, FSECReadableDevice, Movable, Stoppable):
+class Eurotherm3216(FSECSubscribable, FSECReadableDevice, Movable, Stoppable, Preparable):
     """
     Eurotherm 3216 temperature controller
 
@@ -73,6 +74,10 @@ class Eurotherm3216(FSECSubscribable, FSECReadableDevice, Movable, Stoppable):
             )
         super().__init__(trl=trl, name=name)
         self._set_success = False
+
+    @AsyncStatus.wrap
+    async def prepare(self, value):
+        await self.SetpointRamp.set(value)
 
     @WatchableAsyncStatus.wrap
     async def set(self, value: float, timeout=None):
