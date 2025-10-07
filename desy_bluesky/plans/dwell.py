@@ -26,7 +26,6 @@ def dwell(
     """
     _md = {
         "plan_name": "dwell_and_read",
-        "motors": [],
         "detectors": [det.name for det in readables],
         "plan_args": {
             "readables": [det.name for det in readables],
