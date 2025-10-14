@@ -30,7 +30,14 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
     SlewRateMax: A[SignalRW[int], Format.CONFIG_SIGNAL]
     Conversion: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Acceleration: A[SignalRW[int], Format.CONFIG_SIGNAL]
-    StopMove: SignalX
+    StopMove: SignalR[int]
+    # Signals with different input/output types are not supported and must be ignored
+    Calibrate: Ignore
+    Move: Ignore
+    MoveLoop: Ignore
+    SetupUnitMove: Ignore
+    UserCalibrate: Ignore
+    movevvc: Ignore
 
     @AsyncStatus.wrap
     async def set(
@@ -60,9 +67,10 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
         await self.Position.set(value, wait=False, timeout=timeout)
         await wait_for_value(self.State, "ON", timeout=float(timeout))
 
-    def stop(self, success: bool = False) -> SyncOrAsync:
+    @AsyncStatus.wrap
+    async def stop(self, success: bool = False):
         self._set_success = success
-        return self.StopMove.trigger()
+        await self.StopMove.get_value()
 
 
 class OmsVME58MotorNoEncoder(OmsVME58Motor):
@@ -71,7 +79,7 @@ class OmsVME58MotorNoEncoder(OmsVME58Motor):
     SlewRateMax: A[SignalRW[int], Format.CONFIG_SIGNAL]
     Conversion: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Acceleration: A[SignalRW[int], Format.CONFIG_SIGNAL]
-    StopMove: SignalX
+    StopMove: SignalR[int]
     PositionEncoder: Ignore
     PositionEncoderRaw: Ignore
     StepPositionController: A[SignalRW[int], Format.UNCACHED_SIGNAL]
@@ -83,7 +91,7 @@ class OmsVME58MotorEncoder(OmsVME58Motor):
     SlewRateMax: A[SignalRW[int], Format.CONFIG_SIGNAL]
     Conversion: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Acceleration: A[SignalRW[int], Format.CONFIG_SIGNAL]
-    StopMove: SignalX
+    StopMove: SignalR[int]
     PositionEncoder: A[SignalR[float], Format.UNCACHED_SIGNAL]
     PositionEncoderRaw: A[SignalR[float], Format.UNCACHED_SIGNAL]
 
@@ -94,7 +102,7 @@ class PolledOmsVME58MotorEncoder(FSECSubscribable, OmsVME58Motor):
     SlewRateMax: A[SignalRW[int], Format.CONFIG_SIGNAL]
     Conversion: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Acceleration: A[SignalRW[int], Format.CONFIG_SIGNAL]
-    StopMove: SignalX
+    StopMove: SignalR[int]
     PositionEncoder: A[SignalR[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
     PositionEncoderRaw: A[SignalR[float], Format.HINTED_SIGNAL, TangoPolling(0.1, 0.1)]
 
@@ -108,6 +116,6 @@ class PolledOmsVME58MotorNoEncoder(FSECSubscribable, OmsVME58Motor):
     SlewRateMax: A[SignalRW[int], Format.CONFIG_SIGNAL]
     Conversion: A[SignalRW[float], Format.CONFIG_SIGNAL]
     Acceleration: A[SignalRW[int], Format.CONFIG_SIGNAL]
-    StopMove: SignalX
+    StopMove: SignalR[int]
     PositionEncoder: Ignore
     PositionEncoderRaw: Ignore
