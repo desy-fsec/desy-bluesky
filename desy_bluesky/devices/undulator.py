@@ -14,7 +14,7 @@ from ophyd_async.core import (
     SignalX,
     wait_for_value,
     StandardReadableFormat as Format,
-    Array1D,
+    Ignore
 )
 
 from .fsec_readable_device import FSECReadableDevice
@@ -28,6 +28,7 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
     ResultSim: SignalR[Sequence[str]]
     Gap: A[SignalRW[float], Format.UNCACHED_SIGNAL]
     StopMove: SignalX
+    Calibrate: Ignore
 
     def __init__(
         self,
