@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated as A
+from typing import Annotated as A, Sequence
 
 import numpy as np
 
@@ -25,7 +25,7 @@ class Undulator(FSECReadableDevice, Movable, Stoppable):
     PositionSim: SignalRW[float]
     Velocity: SignalRW[float]
     HarmonicSim: SignalRW[int]
-    ResultSim: SignalR[Array1D[np.str_]]
+    ResultSim: SignalR[Sequence[str]]
     Gap: A[SignalRW[float], Format.UNCACHED_SIGNAL]
     StopMove: SignalX
 
