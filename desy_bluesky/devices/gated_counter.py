@@ -47,7 +47,7 @@ class GatedCounter(StandardReadable, Triggerable):
     @AsyncStatus.wrap
     async def trigger(self) -> None:
         if await self.reset_on_trigger.get_value():
-            await self.counter.Reset.trigger()
+            await self.counter.Reset.get_value()
 
         trigger_status = self.gate.trigger()
         await trigger_status

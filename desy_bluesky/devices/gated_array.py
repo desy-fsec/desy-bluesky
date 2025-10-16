@@ -60,7 +60,7 @@ class GatedArray(StandardReadable, Triggerable):
         tasks = []
         for counter in self.counters.values():
             if self.reset_on_trigger:
-                tasks.append(counter.Reset.trigger())
+                tasks.append(counter.Reset.get_value())
         await asyncio.gather(*tasks)
 
         trigger_status = self.gate.trigger()
