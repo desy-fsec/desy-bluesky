@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "desy-bluesky"
-version = "0.2.3"
+version = "0.2.4"
 description = ""
 authors = ["Devin Burke"]
 license = "GNU GPL 3"
