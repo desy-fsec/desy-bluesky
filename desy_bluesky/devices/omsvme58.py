@@ -64,7 +64,7 @@ class OmsVME58Motor(FSECReadableDevice, Movable, Stoppable):
                 + (2 * velocity / acceleration)
                 + DEFAULT_TIMEOUT
             )
-        await self.Position.set(value, wait=False, timeout=timeout)
+        await self.Position.set(value, timeout=timeout)
         await wait_for_value(self.State, "ON", timeout=float(timeout))
 
     @AsyncStatus.wrap
