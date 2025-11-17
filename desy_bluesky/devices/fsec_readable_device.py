@@ -6,23 +6,16 @@ import time
 
 from bluesky.protocols import Subscribable, Callback, Reading
 
-from ophyd_async.core import SignalR
-from ophyd_async.tango.core import TangoReadable, TangoPolling, DevStateEnum
+from ophyd_async.core import SignalR, StandardReadable
+from ophyd_async.tango.core import TangoPolling, DevStateEnum, TangoDevice
 from ophyd_async.core._utils import LazyMock, DEFAULT_TIMEOUT
 from tango import DevState
 
 FSECDeviceConfig = TypeVar("FSECDeviceConfig")
 
 
-class FSECReadableDevice(TangoReadable):
+class FSECReadableDevice(TangoDevice, StandardReadable):
     State: A[SignalR[DevStateEnum], TangoPolling(0.1)]
-
-    def __init__(
-        self, trl: str, name: str = "", auto_fill_signals: bool = True
-    ) -> None:
-        TangoReadable.__init__(
-            self, trl, name=name, auto_fill_signals=auto_fill_signals
-        )
 
     def __repr__(self):
         return self.name
